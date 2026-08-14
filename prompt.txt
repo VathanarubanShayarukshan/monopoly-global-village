@@ -1,0 +1,28 @@
+pr1 - good remove role dice btn and make that as a 2 dice images in center of the board and get the imgae file from internet your self and i seen you have
+      use many extranel urls in files save al files in src fiolder and use local url for code becuse it is a full offline and limited online game 
+      and make rank btn in main page and ui is good but remove invite btn from offline game and walet is bad 💰 Wallet: $0 1 properties
+      🌱 Rookie · Net worth $60
+
+
+PR2 - why the main page walet is show 💰 Wallet $0   and remove linvit btn from offline g
+    ame page aand save musics too is src folder 
+
+pr3 - no i played a first game for example  balance after buy a property is 1300 after that my property can give income use rent price 
+      the rent price and comunity chest and chace income is save in my lifeime walet i can transver money from lifetime walet to game temperovery
+      walet use 2 diferent laet address and all  outgoing is fom game walet and incomes are save in lifetime walet and game walet is temerovery it have 
+      eleat after the game end and add end game btn for every game the rank is disite use lifetime walet and lifeitime walet is not money is 
+      publicly show in game players only game walet money is public an dlifetime walet meney shows in main page 
+      lifewalet have security pin and pin was made by owner when login and make user password and permenent user name for user and permenent lifewalet
+      and password user can change username and passwd and walet pin but lifewalert address is permenent is made by system and for every new 
+      game the every players have 1500money in game walet and if player is rich and have money in life walet too then he can 
+      transver some more money from lifewalet to game walet but when game end that transvered money not given to life wlaet it have deleted with 
+      game walet his incomes onl retern to lifewalet 
+
+pr4 - add any acount transver atm not life walet to game walet i can share money to any life walet only to any acount but only from life walet becuse 
+      users can cheate use auto game walet free cash to life time walet and why my comunity chest income and rent cash enot save in life walet 
+
+
+pr5 - show lifetime walet cash for owner only and all are good but donot save propety count for lifwtime it is in game walet and temp and other all are
+      good so 94% compleated the task end theen open github in browser and open github and make new repo and commite this game files into that and makee readme file with tamil or 
+      english user languge mode too 
+      

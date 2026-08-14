@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Monopoly Global Village — Pokémon-themed board game. Play online or offline.">
+  <meta name="theme-color" content="#e63946">
+  <title>Monopoly Global Village</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/img/poke-ball.png">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- AUTH (login / create account) -->
+    <section id="auth-screen" class="screen active">
+      <div class="lobby-bg"></div>
+      <div class="auth-content glass">
+        <header class="game-header">
+          <img src="assets/img/poke-ball.png" alt="" class="header-icon">
+          <h1>Monopoly <span class="highlight">Global Village</span></h1>
+          <p class="subtitle">Pokémon GO Edition — Play Anywhere, Anytime</p>
+        </header>
+
+        <div class="auth-tabs">
+          <button class="btn btn-tab active" id="auth-tab-login">Login</button>
+          <button class="btn btn-tab" id="auth-tab-register">Create Account</button>
+        </div>
+
+        <div id="auth-login-form" class="auth-form">
+          <input type="text" id="login-username" placeholder="Username" class="input-lg" maxlength="20" autocomplete="username">
+          <input type="password" id="login-password" placeholder="Password" class="input-lg" autocomplete="current-password">
+          <label class="remember-row">
+            <input type="checkbox" id="login-remember" checked>
+            <span>Remember me on this device</span>
+          </label>
+          <button class="btn btn-primary btn-lg" id="btn-login">🔓 Login</button>
+          <small class="info">Your account is stored only on this device — passwords and wallets never leave your computer.</small>
+        </div>
+
+        <div id="auth-register-form" class="auth-form" hidden>
+          <input type="text" id="reg-username" placeholder="Permanent username" class="input-lg" maxlength="20" autocomplete="username">
+          <input type="password" id="reg-password" placeholder="Password" class="input-lg" autocomplete="new-password">
+          <input type="password" id="reg-password2" placeholder="Confirm password" class="input-lg" autocomplete="new-password">
+          <input type="password" id="reg-pin" placeholder="Wallet PIN (4–6 digits)" class="input-lg" inputmode="numeric" maxlength="6" autocomplete="new-password">
+          <input type="password" id="reg-pin2" placeholder="Confirm wallet PIN" class="input-lg" inputmode="numeric" maxlength="6" autocomplete="new-password">
+          <small class="info">The system creates a permanent lifetime wallet address for you. You can change your username, password and PIN anytime — but your wallet address can never be changed.</small>
+          <button class="btn btn-primary btn-lg" id="btn-register">🪙 Create Account</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOBBY -->
+    <section id="lobby-screen" class="screen">
+      <div class="lobby-bg"></div>
+      <div class="lobby-content">
+        <header class="game-header">
+          <img src="assets/img/poke-ball.png" alt="" class="header-icon">
+          <h1>Monopoly <span class="highlight">Global Village</span></h1>
+          <p class="subtitle">Pokémon GO Edition — Play Anywhere, Anytime</p>
+        </header>
+
+        <div class="profile-card glass">
+          <div class="avatar-picker">
+            <span id="player-avatar" class="avatar-display">🔴</span>
+            <div class="avatar-options">
+              <span class="avatar-option">🔴</span><span class="avatar-option">🔵</span>
+              <span class="avatar-option">🟢</span><span class="avatar-option">🟡</span>
+              <span class="avatar-option">🟣</span><span class="avatar-option">🟠</span>
+            </div>
+          </div>
+          <div class="name-input-group">
+            <strong id="player-name-display" class="player-name-display">Trainer</strong>
+            <small class="info">Your username is permanent — change it in Security.</small>
+          </div>
+          <div class="wallet-card">
+            <span class="wallet-title">💰 Lifetime Wallet</span>
+            <strong id="wallet-balance" class="wallet-balance">$0</strong>
+            <div class="wallet-stats">
+              <span id="wallet-rank-chip" class="wallet-chip">🌱 Rookie</span>
+              <span id="wallet-networth" class="wallet-chip">Net worth $0</span>
+            </div>
+            <div class="rank-progress">
+              <div id="rank-progress-fill" class="rank-progress-fill"></div>
+            </div>
+            <small id="wallet-address" class="wallet-addr"></small>
+          </div>
+          <div class="profile-actions">
+            <button class="btn btn-xs" id="btn-show-ranks" title="Ranks">🏆 Rank</button>
+            <button class="btn btn-xs" id="btn-atm" title="ATM — send to any account's lifetime wallet">🏧 ATM</button>
+            <button class="btn btn-xs" id="btn-security" title="Security">🔐 Security</button>
+            <button class="btn btn-xs btn-outline" id="btn-logout" title="Logout">🚪 Logout</button>
+          </div>
+        </div>
+
+        <div class="lobby-actions">
+          <button class="btn btn-primary btn-lg" id="btn-new-game">
+            <span>🎮</span> New Local Game
+          </button>
+          <button class="btn btn-accent btn-lg" id="btn-create-room">
+            <span>🌐</span> Create Online Room
+          </button>
+          <button class="btn btn-secondary btn-lg" id="btn-join-game">
+            <span>🔗</span> Join Friend's Room
+          </button>
+        </div>
+
+        <div class="data-actions glass">
+          <button class="btn btn-outline" id="btn-export">📥 Download Save Data</button>
+          <button class="btn btn-outline" id="btn-import">📤 Upload Save Data</button>
+          <input type="file" id="import-file" accept=".mgv,.json" hidden>
+        </div>
+
+        <div class="saved-games glass">
+          <h3>Saved Games</h3>
+          <div id="saved-games-list"></div>
+        </div>
+
+        <div class="features-bar">
+          <span>🔐 Lifetime wallet + PIN</span>
+          <span>📡 P2P Online</span>
+          <span>📴 Offline PWA</span>
+          <span>💾 Export/Import</span>
+          <span>🏆 Rank system</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETUP -->
+    <section id="setup-screen" class="screen">
+      <div class="setup-content glass">
+        <h2>Setup Players</h2>
+        <div id="player-slots"></div>
+        <div class="setup-buttons">
+          <button class="btn btn-secondary" id="btn-back-lobby">← Back</button>
+          <button class="btn btn-primary btn-lg" id="btn-start-local">Start Game</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- JOIN -->
+    <section id="join-screen" class="screen">
+      <div class="setup-content glass">
+        <h2>Join Online Room</h2>
+        <p class="info">Enter the room code from your friend's invite link</p>
+        <input type="text" id="join-room-code" placeholder="Room Code (e.g. ABC123)" maxlength="8" class="input-lg">
+        <input type="text" id="join-player-name" placeholder="Your name" class="input-lg">
+        <div class="setup-buttons">
+          <button class="btn btn-secondary" id="btn-back-lobby2">← Back</button>
+          <button class="btn btn-accent btn-lg" id="btn-join-room">Join Room</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- GAME -->
+    <section id="game-screen" class="screen">
+      <div class="game-toolbar">
+        <button class="btn btn-icon" id="btn-menu" title="Menu">☰</button>
+        <span id="conn-status" class="conn-status" hidden></span>
+        <div class="toolbar-right">
+          <button class="btn btn-icon" id="btn-bank" title="In-Game Bank — transfer money from your lifetime wallet">🏦</button>
+          <button class="btn btn-icon btn-danger" id="btn-end-game" title="End Game">⏹</button>
+          <button class="btn btn-icon" id="btn-chat" title="Chat">💬</button>
+          <button class="btn btn-icon" id="btn-sound" title="Toggle Sound">🔊</button>
+          <button class="btn btn-icon" id="btn-music" title="Toggle Music">🎵</button>
+        </div>
+      </div>
+
+      <div class="game-layout">
+        <aside class="sidebar left">
+          <h3>Players</h3>
+          <div id="players-panel"></div>
+        </aside>
+
+        <main id="board-container" class="board-area"></main>
+
+        <aside class="sidebar right">
+          <h3>Actions</h3>
+          <div id="action-panel"></div>
+          <h3>Game Log</h3>
+          <div id="game-log" class="game-log"></div>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <!-- MODALS -->
+  <div id="invite-modal" class="modal">
+    <div class="modal-content glass">
+      <h3>Invite Friends</h3>
+      <p>Share this link — friends can join instantly!</p>
+      <p class="info">Both you and your friend need internet. They open the link, enter their name, and press <strong>Join Room</strong> before you press <strong>Start</strong>.</p>
+      <input type="text" id="invite-url" readonly class="input-lg">
+      <div class="room-code-box">
+        <span>Room Code:</span>
+        <strong id="invite-room-code">—</strong>
+      </div>
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="btn-copy-invite">📋 Copy Link</button>
+        <button class="btn btn-secondary" id="btn-close-invite">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="bank-modal" class="modal">
+    <div class="modal-content glass">
+      <h3>🏦 In-Game Bank</h3>
+      <div class="atm-my">
+        <span>Game wallet: <code id="bank-game-addr"></code></span>
+        <span>Game balance (public): <strong id="bank-game-balance">$1500</strong></span>
+        <span>Lifetime wallet: <code id="bank-lifetime-addr"></code></span>
+        <span>Lifetime balance: <strong id="bank-lifetime-balance">●●●●</strong></span>
+      </div>
+      <p class="info" id="bank-pin-hint">Your lifetime wallet is protected by your PIN. Money transferred into this game is spent here — it is <strong>not</strong> returned at the end of the game. Only income (rent, GO, Chance &amp; Community Chest) is saved to your lifetime wallet.</p>
+      <input type="number" id="bank-amount" placeholder="Amount $" class="input-lg" min="1">
+      <input type="password" id="bank-pin" placeholder="Wallet PIN" class="input-lg" inputmode="numeric" maxlength="6" autocomplete="off">
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="btn-bank-transfer">📤 Transfer to Game Wallet</button>
+        <button class="btn btn-secondary" id="btn-close-bank">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="atm-modal" class="modal">
+    <div class="modal-content glass">
+      <h3>🏧 ATM — Lifetime Transfer</h3>
+      <p class="info">Send money from <strong>your</strong> lifetime wallet to any account's lifetime wallet. Game money can never be converted to lifetime money — only income (rent, GO, Chance &amp; Community Chest) is saved to your lifetime wallet.</p>
+      <div class="atm-my">
+        <span>Your lifetime address: <code id="atm-my-addr">—</code></span>
+        <span>Your lifetime balance: <strong id="atm-my-balance">$0</strong></span>
+      </div>
+      <input type="text" id="atm-to-addr" placeholder="Recipient LIF address (e.g. LIF-AB12-CD34)" class="input-lg" maxlength="13" autocomplete="off">
+      <p class="info" id="atm-recipient-info" style="display:none"></p>
+      <input type="number" id="atm-amount" placeholder="Amount $" class="input-lg" min="1">
+      <input type="password" id="atm-pin" placeholder="Your wallet PIN" class="input-lg" inputmode="numeric" maxlength="6" autocomplete="off">
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="btn-atm-send">📤 Send</button>
+        <button class="btn btn-secondary" id="btn-close-atm">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="security-modal" class="modal">
+    <div class="modal-content glass">
+      <h3>🔐 Security</h3>
+      <p class="info">Your lifetime wallet address is permanent and can never be changed.</p>
+      <input type="password" id="sec-current-pass" placeholder="Current password" class="input-lg" autocomplete="current-password">
+      <input type="text" id="sec-new-username" placeholder="New username (leave empty to keep)" class="input-lg" maxlength="20">
+      <input type="password" id="sec-new-pass" placeholder="New password (leave empty to keep)" class="input-lg" autocomplete="new-password">
+      <input type="password" id="sec-new-pin" placeholder="New wallet PIN 4–6 digits (leave empty to keep)" class="input-lg" inputmode="numeric" maxlength="6" autocomplete="new-password">
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="btn-save-security">💾 Save Changes</button>
+        <button class="btn btn-secondary" id="btn-close-security">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="end-game-modal" class="modal">
+    <div class="modal-content glass">
+      <h3>⏹ End Game</h3>
+      <p class="info">Ending the game closes this game. Your earned income is saved to your lifetime wallet — all game money AND properties (including anything you transferred from your lifetime wallet) are deleted with this game.</p>
+      <div class="modal-buttons">
+        <button class="btn btn-danger" id="btn-end-game-confirm">⏹ End Game</button>
+        <button class="btn btn-secondary" id="btn-close-end-game">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="chat-modal" class="modal">
+    <div class="modal-content glass chat-modal">
+      <h3>💬 Chat</h3>
+      <div id="chat-messages" class="chat-messages"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Type a message..." class="input-lg" maxlength="200">
+        <button class="btn btn-primary" id="btn-chat-send">Send</button>
+      </div>
+      <button class="btn btn-secondary" id="btn-close-chat">Close</button>
+    </div>
+  </div>
+
+  <div id="property-modal" class="modal">
+    <div class="modal-content glass wide">
+      <h3>🏠 Property Management</h3>
+      <div id="property-list"></div>
+      <button class="btn btn-secondary" id="btn-close-props">Close</button>
+    </div>
+  </div>
+
+  <div id="menu-modal" class="modal">
+    <div class="modal-content glass">
+      <h3>Game Menu</h3>
+      <button class="btn btn-outline" id="btn-menu-export">📥 Export Save</button>
+      <button class="btn btn-danger" id="btn-menu-quit">Quit to Lobby</button>
+      <button class="btn btn-secondary" id="btn-close-menu">Close</button>
+    </div>
+  </div>
+
+  <div id="rank-modal" class="modal">
+    <div class="modal-content glass">
+      <h3>🏆 Ranks</h3>
+      <p class="info">Ranks are decided by your lifetime wallet — lifetime cash + lifetime property value. Game money does not count.</p>
+      <div id="rank-list" class="rank-list"></div>
+      <button class="btn btn-secondary" id="btn-close-ranks">Close</button>
+    </div>
+  </div>
+
+  <div id="card-overlay" class="card-overlay">
+    <div class="card-visual">
+      <div class="card-type"></div>
+      <div class="card-text"></div>
+      <small>Click to dismiss</small>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <script src="vendor/peerjs.min.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

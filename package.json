@@ -1,0 +1,17 @@
+{
+  "name": "monopoly-global-village",
+  "version": "2.0.0",
+  "description": "Pokémon-themed Monopoly board game — play offline, with AI bots, or P2P online",
+  "main": "server.js",
+  "scripts": {
+    "build": "node build.js",
+    "start": "node server.js",
+    "dev": "node server.js",
+    "serve": "npx --yes http-server . -p 34567"
+  },
+  "keywords": ["monopoly", "game", "p2p", "webrtc", "offline", "pwa"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=14"
+  }
+}

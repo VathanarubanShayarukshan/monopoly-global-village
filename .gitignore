@@ -1,0 +1,12 @@
+# local tooling / caches
+node_modules/
+*.log
+__pycache__/
+*.pyc
+
+# editor
+.vscode/
+.idea/
+
+# opencode workspace config
+.opencode/
