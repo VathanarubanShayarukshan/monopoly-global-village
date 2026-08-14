@@ -84,10 +84,13 @@
           </div>
           <div class="wallet-card">
             <span class="wallet-title">💰 Lifetime Wallet</span>
-            <strong id="wallet-balance" class="wallet-balance">$0</strong>
+            <div class="wallet-balance-row">
+              <strong id="wallet-balance" class="wallet-balance masked">●●●●●●</strong>
+              <button class="btn btn-xs" id="btn-reveal-wallet" title="Reveal with your wallet PIN">🔓</button>
+            </div>
             <div class="wallet-stats">
               <span id="wallet-rank-chip" class="wallet-chip">🌱 Rookie</span>
-              <span id="wallet-networth" class="wallet-chip">Net worth $0</span>
+              <span id="wallet-networth" class="wallet-chip">Net worth ●●●●●●</span>
             </div>
             <div class="rank-progress">
               <div id="rank-progress-fill" class="rank-progress-fill"></div>
@@ -230,8 +233,19 @@
     </div>
   </div>
 
-  <div id="atm-modal" class="modal">
+  <div id="wallet-reveal-modal" class="modal">
     <div class="modal-content glass">
+      <h3>🔓 Unlock Lifetime Balance</h3>
+      <p class="info">Your lifetime balance is private — enter your wallet PIN to see it.</p>
+      <input type="password" id="reveal-pin" placeholder="Wallet PIN" class="input-lg" inputmode="numeric" maxlength="6" autocomplete="off">
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="btn-reveal-confirm">🔓 Unlock</button>
+        <button class="btn btn-secondary" id="btn-close-reveal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="atm-modal" class="modal">    <div class="modal-content glass">
       <h3>🏧 ATM — Lifetime Transfer</h3>
       <p class="info">Send money from <strong>your</strong> lifetime wallet to any account's lifetime wallet. Game money can never be converted to lifetime money — only income (rent, GO, Chance &amp; Community Chest) is saved to your lifetime wallet.</p>
       <div class="atm-my">

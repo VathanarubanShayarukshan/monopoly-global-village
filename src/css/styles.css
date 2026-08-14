@@ -99,6 +99,11 @@ html, body {
   font-size: 1.9rem; font-weight: 800; color: var(--gold); line-height: 1.1;
   text-shadow: 0 0 14px rgba(255,215,0,0.35);
 }
+.wallet-balance.masked { letter-spacing: 6px; opacity: 0.9; }
+.wallet-balance-row {
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+}
+.wallet-balance-row .btn { flex: 0 0 auto; }
 .wallet-stats { display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: center; }
 .wallet-chip {
   font-size: 0.72rem; padding: 0.2rem 0.55rem; border-radius: 999px;

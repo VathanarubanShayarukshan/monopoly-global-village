@@ -2113,19 +2113,21 @@ class UIManager {
   renderLobby() {
     const profile = this.app.storage.getPlayerProfile();
     const rank = this.app.storage.getRank();
+    const revealed = this._walletRevealed;
     const nameEl = document.getElementById('player-name-display');
     if (nameEl) nameEl.textContent = profile.name;
     document.getElementById('player-avatar').textContent = profile.avatar;
     const walletEl = document.getElementById('wallet-balance');
-    if (walletEl) walletEl.textContent = '$' + profile.wallet.toLocaleString();
+    if (walletEl) {
+      walletEl.textContent = revealed ? '$' + profile.wallet.toLocaleString() : '●●●●●●';
+      walletEl.classList.toggle('masked', !revealed);
+    }
     const addrEl = document.getElementById('wallet-address');
     if (addrEl) addrEl.textContent = profile.walletAddress;
-    const propsEl = document.getElementById('wallet-props');
-    if (propsEl) propsEl.parentElement?.removeChild(propsEl);
     const rankChip = document.getElementById('wallet-rank-chip');
     if (rankChip) rankChip.textContent = rank.icon + ' ' + rank.name;
     const nwEl = document.getElementById('wallet-networth');
-    if (nwEl) nwEl.textContent = '💎 Net worth $' + rank.netWorth.toLocaleString();
+    if (nwEl) nwEl.textContent = revealed ? '💎 Net worth $' + rank.netWorth.toLocaleString() : 'Net worth ●●●●●●';
     const fill = document.getElementById('rank-progress-fill');
     if (fill) {
       const pct = rank.next ? Math.max(2, Math.min(100, Math.round((rank.progress || 0) * 100))) : 100;
@@ -2758,6 +2760,12 @@ class App {
     document.getElementById('btn-close-atm')?.addEventListener('click', () => this.ui.showModal('atm-modal', false));
     document.getElementById('btn-atm-send')?.addEventListener('click', () => this.atmSendMoney());
     document.getElementById('atm-to-addr')?.addEventListener('input', () => this.atmLookupRecipient());
+
+    // ---- PR5: reveal masked lifetime balance with the wallet PIN (owner only) ----
+    document.getElementById('btn-reveal-wallet')?.addEventListener('click', () => this.ui.showModal('wallet-reveal-modal'));
+    document.getElementById('btn-close-reveal')?.addEventListener('click', () => this.ui.showModal('wallet-reveal-modal', false));
+    document.getElementById('btn-reveal-confirm')?.addEventListener('click', () => this.handleWalletReveal());
+    document.getElementById('reveal-pin')?.addEventListener('keydown', (e) => { if (e.key === 'Enter') this.handleWalletReveal(); });
     document.getElementById('btn-close-security')?.addEventListener('click', () => this.ui.showModal('security-modal', false));
     document.getElementById('btn-save-security')?.addEventListener('click', () => this.handleSecuritySave());
 
@@ -3097,6 +3105,23 @@ class App {
       this.ui.showToast(`💵 $${amount.toLocaleString()} transferred into this game`, 'success');
       this.ui.renderBank();
       audio.play('money');
+    })();
+  }
+
+  /** PR5: unlock the masked lifetime balance on the main page with the wallet PIN */
+  handleWalletReveal() {
+    const pin = document.getElementById('reveal-pin')?.value.trim();
+    if (pin.length < 4) { this.ui.showToast('Enter your wallet PIN', 'error'); return; }
+    (async () => {
+      if (!(await this.storage.verifyPin(pin))) {
+        this.ui.showToast('Wrong wallet PIN', 'error');
+        return;
+      }
+      this.ui._walletRevealed = true;
+      this.ui.showModal('wallet-reveal-modal', false);
+      this.ui.renderLobby();
+      this.ui.showToast('🔓 Lifetime balance unlocked', 'success');
+      audio.play('click');
     })();
   }
 
