@@ -2,6 +2,16 @@
 
 A Pokémon‑themed Monopoly board game that runs **100% in the browser** — plain JavaScript + WebRTC, no backend server required. Fully offline‑first with limited online play.
 
+## 🚀 Quick start
+
+**Windows** — double‑click `start.bat` (or `start.sh` on Linux/macOS) — it starts the server and opens the game in your browser automatically.
+
+Or manually:
+
+```bash
+python server.py      # → open http://localhost:34567
+```
+
 - 🎲 Classic Monopoly on a 40‑space "Global Village" board (Manila → Mumbai)
 - 🤖 Play offline against AI bots
 - 🌐 Play online with friends over peer‑to‑peer WebRTC (host‑authoritative)
@@ -19,6 +29,11 @@ A Pokémon‑themed Monopoly board game that runs **100% in the browser** — pl
 Requires **Node.js 14+** or **Python 3**.
 
 ```bash
+# Easiest — launcher scripts (starts server + opens the browser)
+start.bat   # Windows (double-click)
+./start.sh  # Linux / macOS
+
+# Or manually:
 # Option 1 — Node (recommended)
 node server.js
 # → open http://localhost:34567
