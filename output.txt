@@ -32,6 +32,10 @@ pr5 - lifetime wallet cash is shown to the OWNER ONLY: main page shows own cash,
       rank / net worth now computed from lifetime cash only
       lobby property chip removed, end-game texts updated
       README.md rewritten with English + Tamil user language modes
-      game files committed to a new GitHub repository (see repo below)
+      start.bat (Windows) and start.sh (Linux/macOS) launchers: run the python server
+      and open the game in the browser automatically
+      publish-level polish: MIT LICENSE, social/meta tags, PWA cache bumped to mgv-v9
+      game published on GitHub (repo created + all files committed and pushed):
+      https://github.com/VathanarubanShayarukshan/monopoly-global-village
 
-status - 94%+ of the requested tasks complete; remaining: any new pull requests
+status - 100% of the requested tasks complete - project is published
