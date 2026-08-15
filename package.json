@@ -9,9 +9,16 @@
     "dev": "node server.js",
     "serve": "npx --yes http-server . -p 34567"
   },
-  "keywords": ["monopoly", "game", "p2p", "webrtc", "offline", "pwa"],
+  "keywords": [
+    "monopoly",
+    "game",
+    "p2p",
+    "webrtc",
+    "offline",
+    "pwa"
+  ],
   "license": "MIT",
-    "engines": {
+  "engines": {
     "node": "20.x"
   }
 }
