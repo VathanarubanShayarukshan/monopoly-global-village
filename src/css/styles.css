@@ -289,7 +289,7 @@ html, body {
 
 .game-layout {
   display: grid;
-  grid-template-columns: 200px 1fr 220px;
+  grid-template-columns: 170px 1fr 200px;
   height: calc(100vh - 52px);
   gap: 0;
 }
@@ -335,8 +335,8 @@ html, body {
   display: grid;
   grid-template-columns: repeat(11, 1fr);
   grid-template-rows: repeat(11, 1fr);
-  width: min(88vh, 92vw);
-  height: min(88vh, 92vw);
+  width: min(calc(100vh - 64px), calc(100vw - 388px));
+  height: min(calc(100vh - 64px), calc(100vw - 388px));
   background: #dcedc8;
   border: 4px solid #1b5e20;
   border-radius: 10px;
@@ -581,6 +581,7 @@ html, body {
   .sidebar { max-height: 150px; }
   .sidebar.left { order: 2; }
   .board-area { order: 1; min-height: 60vh; }
+  .monopoly-board { width: min(calc(100vh - 130px), 94vw); height: min(calc(100vh - 130px), 94vw); }
   .sidebar.right { order: 3; }
   .lobby-content { padding: 1rem; }
   .game-header h1 { font-size: 1.6rem; }
