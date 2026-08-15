@@ -25,4 +25,9 @@ pr4 - add any acount transver atm not life walet to game walet i can share money
 pr5 - show lifetime walet cash for owner only and all are good but donot save propety count for lifwtime it is in game walet and temp and other all are
       good so 94% compleated the task end theen open github in browser and open github and make new repo and commite this game files into that and makee readme file with tamil or 
       english user languge mode too 
+
+pr6 - more changes make board more larger and add a function small notifications are want send to walet incommings and outgoings and add some images for board and property boxes 
+      for decotaion and easy  undestanding a property without reading the name and adda option to make own mark peases to his poins by player them self for hey not like out simple
+      icons the thay can draw peases them self in the game like ms paint ok cimmit ths update in github but do not deploy in vercel 
+
       

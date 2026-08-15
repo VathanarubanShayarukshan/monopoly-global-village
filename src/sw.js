@@ -1,6 +1,6 @@
 /* Monopoly Global Village — offline cache service worker */
 /* NOTE: bump CACHE version whenever assets change, so users get the new files. */
-const CACHE = 'mgv-v12';
+const CACHE = 'mgv-v14';
 const ASSETS = [
   './',
   './index.html',

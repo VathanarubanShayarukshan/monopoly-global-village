@@ -251,7 +251,30 @@ html, body {
   border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3);
   color: var(--text); font-family: var(--font);
 }
-.slot-token { font-size: 1.3rem; }
+.slot-token { font-size: 1.3rem; display: inline-flex; align-items: center; }
+.slot-token-img { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; }
+.draw-btn { flex-shrink: 0; }
+
+/* PR6 draw-your-own-piece (MS Paint style) */
+.draw-canvas-wrap { display: flex; justify-content: center; padding: 0.5rem 0; }
+#draw-canvas {
+  background: #fff; border-radius: 8px; border: 1px solid var(--glass-border);
+  touch-action: none; cursor: crosshair;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.15);
+  width: 140px; height: 140px;
+}
+.draw-tools { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; justify-content: center; margin-bottom: 0.6rem; }
+.draw-colors { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+.draw-swatch {
+  width: 22px; height: 22px; border-radius: 50%; padding: 0;
+  border: 2px solid rgba(255,255,255,0.4); cursor: pointer; transition: transform 0.15s;
+}
+.draw-swatch.active { border-color: var(--gold); box-shadow: 0 0 6px var(--gold); transform: scale(1.2); }
+.draw-size { min-width: 30px; }
+.draw-size.active { background: var(--gold); color: #000; }
+#btn-draw-eraser.active { background: var(--gold); color: #000; }
+.p-token-img { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.45); object-fit: cover; }
+.owner-badge img, .token-img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 
 /* Game Layout */
 #game-screen { height: 100vh; overflow: hidden; }
@@ -335,8 +358,8 @@ html, body {
   display: grid;
   grid-template-columns: repeat(11, 1fr);
   grid-template-rows: repeat(11, 1fr);
-  width: min(calc(100vh - 48px), calc(100vw - 352px));
-  height: min(calc(100vh - 48px), calc(100vw - 352px));
+  width: min(calc(100vw - 352px), calc((100vh - 48px) * 1.6));
+  height: min(calc(100vh - 48px), calc((100vw - 352px) / 1.6));
   background: #dcedc8;
   border: 4px solid #1b5e20;
   border-radius: 10px;
@@ -357,6 +380,11 @@ html, body {
 }
 
 .center-logo { text-align: center; padding: 1rem; z-index: 1; }
+.center-ball {
+  width: clamp(30px, 4vmin, 56px); margin-bottom: 0.3rem;
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));
+}
 .center-logo h2 {
   font-size: clamp(0.8rem, 2vw, 1.6rem); color: var(--gold);
   text-shadow: 0 0 10px rgba(255,215,0,0.35); margin-top: 0.3rem;
@@ -564,6 +592,10 @@ html, body {
 .toast-info { background: var(--accent); }
 .toast-success { background: var(--success); }
 .toast-error { background: var(--primary); }
+.toast-wallet {
+  background: linear-gradient(135deg, #b8860b, #ffd700);
+  color: #1c1c1c; border: 1px solid rgba(255,255,255,0.5);
+}
 @keyframes slideIn {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }

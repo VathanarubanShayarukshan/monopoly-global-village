@@ -38,4 +38,23 @@ pr5 - lifetime wallet cash is shown to the OWNER ONLY: main page shows own cash,
       game published on GitHub (repo created + all files committed and pushed):
       https://github.com/VathanarubanShayarukshan/monopoly-global-village
 
+pr6 - board made MUCH larger: side panels slimmed to 158/178px, toolbar and paddings
+      tightened, and the board now auto-fits the full center of the screen
+      (min(100vh-48px, 100vw-352px), capped at 1.6:1 ratio) - fills 99-100% of the
+      center width on desktop, bigger mobile rules too
+      small wallet notifications added: golden toast for every lifetime incoming
+      ("+$X income -> lifetime wallet") and outgoing ("- $X lifetime wallet -> ..."),
+      covering live income banking, game-end income, ATM sends and wallet->game transfers
+      images/icons added to the board and every property box : each of the 22 city
+      properties now has a landmark icon (e.g. Paris 🗼, New York 🗽, Tokyo 🗻, Sydney 🦘, Dubai 🏝️, Cairo 🏺, Shanghai 🐉, Mumbai 🚆, Madrid 🏟️) so a property is recognised
+      without reading its name; a Poké Ball decorates the board center
+      draw-your-own-piece feature (MS Paint style): every player slot in Setup has a ✏️
+      button opening a canvas with colors, S/M/L brush sizes, eraser and clear; the
+      drawn PNG becomes the player's token on the board, in player cards and on owned
+      properties (bots keep classic emoji tokens)
+      PWA cache bumped to mgv-v14; verified in Chrome: board size, 40 cell icons,
+      drawn token on board, center ball, wallet notification on live rent income
+      committed + pushed to GitHub: https://github.com/VathanarubanShayarukshan/monopoly-global-village
+      (NOT deployed to Vercel as requested)
+
 status - 100% of the requested tasks complete - project is published

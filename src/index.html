@@ -327,6 +327,39 @@
     </div>
   </div>
 
+  <div id="draw-modal" class="modal">
+    <div class="modal-content glass">
+      <h3>✏️ Draw Your Player Piece</h3>
+      <p class="info">Draw your own board piece — just like MS Paint! It follows your player everywhere on the board.</p>
+      <div class="draw-canvas-wrap">
+        <canvas id="draw-canvas" width="140" height="140"></canvas>
+      </div>
+      <div class="draw-tools">
+        <div class="draw-colors" id="draw-colors">
+          <button class="draw-swatch active" data-color="#e63946" style="background:#e63946"></button>
+          <button class="draw-swatch" data-color="#1d3557" style="background:#1d3557"></button>
+          <button class="draw-swatch" data-color="#2a9d8f" style="background:#2a9d8f"></button>
+          <button class="draw-swatch" data-color="#f4a261" style="background:#f4a261"></button>
+          <button class="draw-swatch" data-color="#e9c46a" style="background:#e9c46a"></button>
+          <button class="draw-swatch" data-color="#6a4c93" style="background:#6a4c93"></button>
+          <button class="draw-swatch" data-color="#d90429" style="background:#d90429"></button>
+          <button class="draw-swatch" data-color="#000000" style="background:#000"></button>
+        </div>
+        <div class="draw-sizes" id="draw-sizes">
+          <button class="btn btn-xs draw-size" data-size="3">S</button>
+          <button class="btn btn-xs draw-size active" data-size="6">M</button>
+          <button class="btn btn-xs draw-size" data-size="12">L</button>
+        </div>
+        <button class="btn btn-xs" id="btn-draw-eraser">🧽 Eraser</button>
+        <button class="btn btn-xs" id="btn-draw-clear">🗑️ Clear</button>
+      </div>
+      <div class="modal-buttons">
+        <button class="btn btn-primary" id="btn-draw-save">✔ Use this piece</button>
+        <button class="btn btn-secondary" id="btn-draw-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <div id="card-overlay" class="card-overlay">
     <div class="card-visual">
       <div class="card-type"></div>

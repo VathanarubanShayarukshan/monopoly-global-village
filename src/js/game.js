@@ -17,45 +17,45 @@ const PLAYER_TOKENS = ['🔴', '🔵', '🟢', '🟡', '🟣', '🟠', '⚫', '�
 // 40-space board — Global Village cities (Pokémon GO theme)
 const BOARD = [
   { id: 0,  type: 'go',           name: 'GO',              icon: '🏁' },
-  { id: 1,  type: 'property',     name: 'Manila',          color: '#8B4513', price: 60,  rent: [2,10,30,90,160,250], houseCost: 50, group: 'brown' },
+  { id: 1,  type: 'property',     name: 'Manila',          icon: '🛕',  color: '#8B4513', price: 60,  rent: [2,10,30,90,160,250], houseCost: 50, group: 'brown' },
   { id: 2,  type: 'chest',        name: 'Community Chest', icon: '📦' },
-  { id: 3,  type: 'property',     name: 'Bangkok',         color: '#8B4513', price: 60,  rent: [4,20,60,180,320,450], houseCost: 50, group: 'brown' },
+  { id: 3,  type: 'property',     name: 'Bangkok',         icon: '🏯',  color: '#8B4513', price: 60,  rent: [4,20,60,180,320,450], houseCost: 50, group: 'brown' },
   { id: 4,  type: 'tax',          name: 'Income Tax',      tax: 200, icon: '💰' },
   { id: 5,  type: 'airport',      name: 'North Airport',   price: 200, icon: '✈️' },
-  { id: 6,  type: 'property',     name: 'London',          color: '#87CEEB', price: 100, rent: [6,30,90,270,400,550], houseCost: 50, group: 'lightblue' },
+  { id: 6,  type: 'property',     name: 'London',          icon: '🏰',  color: '#87CEEB', price: 100, rent: [6,30,90,270,400,550], houseCost: 50, group: 'lightblue' },
   { id: 7,  type: 'chance',       name: 'Chance',          icon: '❓' },
-  { id: 8,  type: 'property',     name: 'Toronto',         color: '#87CEEB', price: 100, rent: [6,30,90,270,400,550], houseCost: 50, group: 'lightblue' },
-  { id: 9,  type: 'property',     name: 'Washington',      color: '#87CEEB', price: 120, rent: [8,40,100,300,450,600], houseCost: 50, group: 'lightblue' },
+  { id: 8,  type: 'property',     name: 'Toronto',         icon: '🏙️', color: '#87CEEB', price: 100, rent: [6,30,90,270,400,550], houseCost: 50, group: 'lightblue' },
+  { id: 9,  type: 'property',     name: 'Washington',      icon: '🏛️', color: '#87CEEB', price: 120, rent: [8,40,100,300,450,600], houseCost: 50, group: 'lightblue' },
   { id: 10, type: 'jail',         name: 'Just Visiting',   icon: '🔒' },
-  { id: 11, type: 'property',     name: 'Paris',           color: '#FF69B4', price: 140, rent: [10,50,150,450,625,750], houseCost: 100, group: 'pink' },
+  { id: 11, type: 'property',     name: 'Paris',           icon: '🗼',  color: '#FF69B4', price: 140, rent: [10,50,150,450,625,750], houseCost: 100, group: 'pink' },
   { id: 12, type: 'utility',      name: 'Poké Center',     price: 150, icon: '🏥' },
-  { id: 13, type: 'property',     name: 'Berlin',          color: '#FF69B4', price: 140, rent: [10,50,150,450,625,750], houseCost: 100, group: 'pink' },
-  { id: 14, type: 'property',     name: 'Moscow',          color: '#FF69B4', price: 160, rent: [12,60,180,500,700,900], houseCost: 100, group: 'pink' },
+  { id: 13, type: 'property',     name: 'Berlin',          icon: '🏢',  color: '#FF69B4', price: 140, rent: [10,50,150,450,625,750], houseCost: 100, group: 'pink' },
+  { id: 14, type: 'property',     name: 'Moscow',          icon: '🕍',  color: '#FF69B4', price: 160, rent: [12,60,180,500,700,900], houseCost: 100, group: 'pink' },
   { id: 15, type: 'airport',      name: 'East Airport',    price: 200, icon: '✈️' },
-  { id: 16, type: 'property',     name: 'Dubai',           color: '#FF8C00', price: 180, rent: [14,70,200,550,750,950], houseCost: 100, group: 'orange' },
+  { id: 16, type: 'property',     name: 'Dubai',           icon: '🏝️', color: '#FF8C00', price: 180, rent: [14,70,200,550,750,950], houseCost: 100, group: 'orange' },
   { id: 17, type: 'chest',        name: 'Community Chest', icon: '📦' },
-  { id: 18, type: 'property',     name: 'Cairo',           color: '#FF8C00', price: 180, rent: [14,70,200,550,750,950], houseCost: 100, group: 'orange' },
-  { id: 19, type: 'property',     name: 'Madrid',          color: '#FF8C00', price: 200, rent: [16,80,220,600,800,1000], houseCost: 100, group: 'orange' },
+  { id: 18, type: 'property',     name: 'Cairo',           icon: '🏺',  color: '#FF8C00', price: 180, rent: [14,70,200,550,750,950], houseCost: 100, group: 'orange' },
+  { id: 19, type: 'property',     name: 'Madrid',          icon: '🏟️', color: '#FF8C00', price: 200, rent: [16,80,220,600,800,1000], houseCost: 100, group: 'orange' },
   { id: 20, type: 'parking',      name: 'Free Parking',    icon: '🅿️' },
-  { id: 21, type: 'property',     name: 'Istanbul',        color: '#FF0000', price: 220, rent: [18,90,250,700,875,1050], houseCost: 150, group: 'red' },
+  { id: 21, type: 'property',     name: 'Istanbul',        icon: '🕌',  color: '#FF0000', price: 220, rent: [18,90,250,700,875,1050], houseCost: 150, group: 'red' },
   { id: 22, type: 'chance',       name: 'Chance',          icon: '❓' },
-  { id: 23, type: 'property',     name: 'Sydney',          color: '#FF0000', price: 220, rent: [18,90,250,700,875,1050], houseCost: 150, group: 'red' },
-  { id: 24, type: 'property',     name: 'Taipei',          color: '#FF0000', price: 240, rent: [20,100,300,750,925,1100], houseCost: 150, group: 'red' },
+  { id: 23, type: 'property',     name: 'Sydney',          icon: '🦘',  color: '#FF0000', price: 220, rent: [18,90,250,700,875,1050], houseCost: 150, group: 'red' },
+  { id: 24, type: 'property',     name: 'Taipei',          icon: '🏮',  color: '#FF0000', price: 240, rent: [20,100,300,750,925,1100], houseCost: 150, group: 'red' },
   { id: 25, type: 'airport',      name: 'South Airport',   price: 200, icon: '✈️' },
-  { id: 26, type: 'property',     name: 'Tokyo',           color: '#008000', price: 300, rent: [26,130,390,900,1100,1275], houseCost: 200, group: 'green' },
-  { id: 27, type: 'property',     name: 'Seoul',           color: '#008000', price: 300, rent: [26,130,390,900,1100,1275], houseCost: 200, group: 'green' },
+  { id: 26, type: 'property',     name: 'Tokyo',           icon: '🗻',  color: '#008000', price: 300, rent: [26,130,390,900,1100,1275], houseCost: 200, group: 'green' },
+  { id: 27, type: 'property',     name: 'Seoul',           icon: '🌸',  color: '#008000', price: 300, rent: [26,130,390,900,1100,1275], houseCost: 200, group: 'green' },
   { id: 28, type: 'utility',      name: 'Poké Stop',       price: 150, icon: '📍' },
-  { id: 29, type: 'property',     name: 'Rio de Janeiro',  color: '#008000', price: 320, rent: [28,150,450,1000,1200,1400], houseCost: 200, group: 'green' },
+  { id: 29, type: 'property',     name: 'Rio de Janeiro',  icon: '🏖️', color: '#008000', price: 320, rent: [28,150,450,1000,1200,1400], houseCost: 200, group: 'green' },
   { id: 30, type: 'gotojail',     name: 'Go To Jail',      icon: '👮' },
-  { id: 31, type: 'property',     name: 'New York',        color: '#000080', price: 350, rent: [35,175,500,1100,1300,1500], houseCost: 200, group: 'darkblue' },
-  { id: 32, type: 'property',     name: 'Chicago',         color: '#000080', price: 360, rent: [37,185,550,1150,1350,1550], houseCost: 200, group: 'darkblue' },
+  { id: 31, type: 'property',     name: 'New York',        icon: '🗽',  color: '#000080', price: 350, rent: [35,175,500,1100,1300,1500], houseCost: 200, group: 'darkblue' },
+  { id: 32, type: 'property',     name: 'Chicago',         icon: '🌆',  color: '#000080', price: 360, rent: [37,185,550,1150,1350,1550], houseCost: 200, group: 'darkblue' },
   { id: 33, type: 'chest',        name: 'Community Chest', icon: '📦' },
   { id: 34, type: 'tax',          name: 'Luxury Tax',      tax: 100, icon: '💎' },
   { id: 35, type: 'airport',      name: 'West Airport',    price: 200, icon: '✈️' },
   { id: 36, type: 'chance',       name: 'Chance',          icon: '❓' },
-  { id: 37, type: 'property',     name: 'Shanghai',        color: '#FFD700', price: 260, rent: [22,110,330,800,975,1150], houseCost: 150, group: 'yellow' },
-  { id: 38, type: 'property',     name: 'Hong Kong',       color: '#FFD700', price: 260, rent: [22,110,330,800,975,1150], houseCost: 150, group: 'yellow' },
-  { id: 39, type: 'property',     name: 'Mumbai',          color: '#FFD700', price: 280, rent: [24,120,360,850,1025,1200], houseCost: 150, group: 'yellow' }
+  { id: 37, type: 'property',     name: 'Shanghai',        icon: '🐉',  color: '#FFD700', price: 260, rent: [22,110,330,800,975,1150], houseCost: 150, group: 'yellow' },
+  { id: 38, type: 'property',     name: 'Hong Kong',       icon: '🚢',  color: '#FFD700', price: 260, rent: [22,110,330,800,975,1150], houseCost: 150, group: 'yellow' },
+  { id: 39, type: 'property',     name: 'Mumbai',          icon: '🚆',  color: '#FFD700', price: 280, rent: [24,120,360,850,1025,1200], houseCost: 150, group: 'yellow' }
 ];
 
 const PROPERTY_GROUPS = {
@@ -813,6 +813,7 @@ class GameEngine {
     const startingMoney = opts.startingMoney > 0 ? opts.startingMoney : STARTING_MONEY;
     const botCount = opts.botCount || 0;
     const walletProps = Array.isArray(opts.walletProperties) ? opts.walletProperties : [];
+    const tokenImgs = Array.isArray(opts.tokenImages) ? opts.tokenImages : null;
     const players = playerNames.map((name, i) => ({
       id: i === 0 ? hostId : uid(),
       name,
@@ -825,6 +826,7 @@ class GameEngine {
       bankrupt: false,
       color: PLAYER_COLORS[i % PLAYER_COLORS.length],
       token: PLAYER_TOKENS[i % PLAYER_TOKENS.length],
+      tokenImage: tokenImgs ? (tokenImgs[i] || null) : null,
       doublesCount: 0,
       isHost: i === 0,
       isBot: i >= playerNames.length - botCount
@@ -1827,6 +1829,7 @@ function renderBoard(container, gameState) {
   center.className = 'board-center';
   center.innerHTML = `
     <div class="center-logo">
+      <img src="assets/img/poke-ball.png" class="center-ball" alt="Poké Ball">
       <h2>Monopoly<br><span>Global Village</span></h2>
       <div class="deck-slots">
         <div class="deck chance-deck" title="Chance cards remaining">❓<strong>${gameState.chanceDeck?.length || 0}</strong></div>
@@ -1848,6 +1851,14 @@ function renderBoard(container, gameState) {
 
   container.appendChild(board);
   updateTokens(container, gameState);
+}
+
+/** PR6: player piece — a drawn PNG (tokenImage) or the default emoji token */
+function tokenHtml(player) {
+  if (!player) return '';
+  return player.tokenImage
+    ? `<img class="token-img" src="${player.tokenImage}" alt="">`
+    : player.token;
 }
 
 function getBoardPositions() {
@@ -1894,7 +1905,7 @@ function createCell(space, index, pos, gameState) {
   if (space.tax) html += `<span class="cell-price">$${space.tax}</span>`;
 
   if (owner) {
-    html += `<div class="owner-badge" style="background:${owner.color}" title="${owner.name}">${owner.token}</div>`;
+    html += `<div class="owner-badge" style="background:${owner.color}" title="${owner.name}">${tokenHtml(owner)}</div>`;
   }
 
   if (prop?.houses > 0) {
@@ -1920,15 +1931,23 @@ function updateTokens(container, gameState) {
   gameState.players.forEach(player => {
     if (player.bankrupt) return;
     const tc = container.querySelector(`.token-container[data-space="${player.position}"]`);
-    if (tc) {
+    if (!tc) return;
+    const active = player.id === gameState.players[gameState.currentPlayerIndex]?.id;
+    if (player.tokenImage) {
+      const img = document.createElement('img');
+      img.className = 'player-token';
+      img.src = player.tokenImage;
+      img.title = player.name;
+      img.draggable = false;
+      if (active) img.classList.add('active-turn');
+      tc.appendChild(img);
+    } else {
       const token = document.createElement('span');
       token.className = 'player-token';
       token.style.background = player.color;
       token.textContent = player.name ? player.name[0].toUpperCase() : '?';
       token.title = player.name;
-      if (player.id === gameState.players[gameState.currentPlayerIndex]?.id) {
-        token.classList.add('active-turn');
-      }
+      if (active) token.classList.add('active-turn');
       tc.appendChild(token);
     }
   });
@@ -2217,15 +2236,25 @@ class UIManager {
   }
 
   renderSetup() {
+    this.drawnTokens = [];
+    this.drawingSlot = -1;
+    this.drawing = false;
+    this.drawColor = '#e63946';
+    this.drawSize = 6;
+    this.drawMode = 'pen';
+
     const container = document.getElementById('player-slots');
     container.innerHTML = '';
     for (let i = 0; i < 4; i++) {
       const slot = document.createElement('div');
       slot.className = 'player-slot';
+      slot.dataset.idx = i;
       slot.innerHTML = `
         <input type="text" placeholder="Player ${i + 1}" value="${i === 0 ? this.app.storage.getPlayerProfile().name : ''}" ${i === 0 ? 'readonly' : ''}>
         <span class="slot-token">${PLAYER_TOKENS[i]}</span>
+        <button class="btn btn-xs draw-btn" title="Draw your own player piece (MS Paint style)">✏️</button>
       `;
+      slot.querySelector('.draw-btn').addEventListener('click', () => this.openDrawer(i));
       container.appendChild(slot);
     }
 
@@ -2249,6 +2278,107 @@ class UIManager {
 
   getBotCount() {
     return this.botCount || 0;
+  }
+
+  /** PR6: MS-Paint-style piece drawer — players draw their own board token */
+  openDrawer(idx) {
+    this.drawingSlot = idx;
+    const canvas = document.getElementById('draw-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (this.drawnTokens[idx]) {
+      const img = new Image();
+      img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      img.src = this.drawnTokens[idx];
+    }
+    this._bindDrawEvents();
+    this.showModal('draw-modal');
+  }
+
+  _bindDrawEvents() {
+    if (this._drawBound) return;
+    this._drawBound = true;
+    const canvas = document.getElementById('draw-canvas');
+    const ctx = canvas.getContext('2d');
+    const pos = (e) => {
+      const r = canvas.getBoundingClientRect();
+      return {
+        x: (e.clientX - r.left) * canvas.width / r.width,
+        y: (e.clientY - r.top) * canvas.height / r.height
+      };
+    };
+    canvas.addEventListener('pointerdown', (e) => {
+      this.drawing = true;
+      const p = pos(e);
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+    });
+    canvas.addEventListener('pointermove', (e) => {
+      if (!this.drawing) return;
+      const p = pos(e);
+      ctx.lineWidth = this.drawSize;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = this.drawColor;
+      ctx.globalCompositeOperation = this.drawMode === 'eraser' ? 'destination-out' : 'source-over';
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      ctx.globalCompositeOperation = 'source-over';
+    });
+    const stop = (e) => {
+      try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+      this.drawing = false;
+    };
+    canvas.addEventListener('pointerup', stop);
+    canvas.addEventListener('pointercancel', stop);
+
+    document.getElementById('draw-colors').addEventListener('click', (e) => {
+      const sw = e.target.closest('.draw-swatch');
+      if (!sw) return;
+      this.drawMode = 'pen';
+      this.drawColor = sw.dataset.color;
+      document.querySelectorAll('.draw-swatch').forEach(s => s.classList.toggle('active', s === sw));
+      const eraser = document.getElementById('btn-draw-eraser');
+      if (eraser) eraser.classList.remove('active');
+    });
+    document.getElementById('draw-sizes').addEventListener('click', (e) => {
+      const b = e.target.closest('.draw-size');
+      if (!b) return;
+      this.drawSize = +b.dataset.size;
+      document.querySelectorAll('.draw-size').forEach(s => s.classList.toggle('active', s === b));
+    });
+    const eraser = document.getElementById('btn-draw-eraser');
+    eraser.addEventListener('click', () => {
+      this.drawMode = 'eraser';
+      document.querySelectorAll('.draw-swatch').forEach(s => s.classList.remove('active'));
+      eraser.classList.add('active');
+    });
+    document.getElementById('btn-draw-clear').addEventListener('click', () => ctx.clearRect(0, 0, canvas.width, canvas.height));
+    document.getElementById('btn-draw-save').addEventListener('click', () => this.saveDrawnToken());
+    document.getElementById('btn-draw-cancel').addEventListener('click', () => this.showModal('draw-modal', false));
+  }
+
+  saveDrawnToken() {
+    const canvas = document.getElementById('draw-canvas');
+    const px = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+    let painted = false;
+    for (let i = 3; i < px.length; i += 4) {
+      if (px[i] !== 0) { painted = true; break; }
+    }
+    if (!painted) {
+      this.showToast('Draw something first!', 'error');
+      return;
+    }
+    const dataUrl = canvas.toDataURL('image/png');
+    this.drawnTokens[this.drawingSlot] = dataUrl;
+    const slot = document.querySelector(`.player-slot[data-idx="${this.drawingSlot}"]`);
+    const tokenEl = slot?.querySelector('.slot-token');
+    if (tokenEl) {
+      tokenEl.outerHTML = `<img class="slot-token slot-token-img" src="${dataUrl}" title="Your drawn piece">`;
+    }
+    this.showModal('draw-modal', false);
+    this.showToast('✏️ Piece saved! It will appear on the board.', 'success');
   }
 
   renderGame(state) {
@@ -2281,7 +2411,7 @@ class UIManager {
           cell.querySelector('.cell-content')?.appendChild(badge);
         }
         badge.style.background = owner.color;
-        badge.textContent = owner.token;
+        badge.innerHTML = tokenHtml(owner);
       } else if (badge) badge.remove();
 
       let buildings = cell.querySelector('.buildings');
@@ -2324,7 +2454,9 @@ class UIManager {
     const panel = document.getElementById('players-panel');
     panel.innerHTML = state.players.map((p, i) => `
       <div class="player-card ${i === state.currentPlayerIndex ? 'active' : ''} ${p.bankrupt ? 'bankrupt' : ''}">
-        <span class="p-token" style="background:${p.color}">${p.token}</span>
+        ${p.tokenImage
+          ? `<span class="p-token"><img class="p-token-img" src="${p.tokenImage}" alt=""></span>`
+          : `<span class="p-token" style="background:${p.color}">${p.token}</span>`}
         <div class="p-info">
           <strong>${p.name} ${p.isBot ? '🤖' : ''} ${i === 0 && this.app.isHost ? '👑' : ''}</strong>
           <span>$${p.money.toLocaleString()}</span>
@@ -2875,7 +3007,8 @@ class App {
     this.engine.createGame(allNames, this.myPlayerId, {
       startingMoney: STARTING_MONEY,
       walletProperties: wallet.properties,
-      botCount
+      botCount,
+      tokenImages: this.ui.drawnTokens
     });
     this.engine.startGame();
     this.ui.showScreen('game-screen');
@@ -3102,7 +3235,7 @@ class App {
       }
       await this.storage.debitLifetime(amount);
       this.dispatch({ type: 'bankTransfer', playerId: this.myPlayerId, amount });
-      this.ui.showToast(`💵 $${amount.toLocaleString()} transferred into this game`, 'success');
+      this.ui.showToast(`💸 −$${amount.toLocaleString()} lifetime wallet → game wallet`, 'wallet');
       this.ui.renderBank();
       audio.play('money');
     })();
@@ -3174,7 +3307,7 @@ class App {
     const res = await this.storage.atmSend(addr, amount, pin);
     if (!res.ok) { this.ui.showToast(res.error, 'error'); return; }
     const name = res.recipient.displayName || res.recipient.username;
-    this.ui.showToast(`💸 Sent $${amount.toLocaleString()} to ${name}'s lifetime wallet`, 'success');
+    this.ui.showToast(`💸 −$${amount.toLocaleString()} lifetime wallet → ${name}'s wallet`, 'wallet');
     audio.play('money');
     this.ui.showModal('atm-modal', false);
     this.ui.renderLobby();
@@ -3236,6 +3369,10 @@ class App {
     if (delta <= 0) return;
     this.storage.addLifetime(delta);
     CookieStore.set('mgv_income_' + state.id, String(total));
+    this.ui.showToast(
+      `💎 +$${delta.toLocaleString()} income → lifetime wallet`,
+      'wallet'
+    );
   }
 
   /** Auto-bank before the tab is closed/reloaded so nothing is ever lost */
@@ -3258,8 +3395,8 @@ class App {
     const banked = this._bankLifetime(me);
     if (banked) {
       this.ui.showToast(
-        `💾 $${banked.income.toLocaleString()} income saved to your lifetime wallet!`,
-        'success'
+        `💎 +${banked.income.toLocaleString()} income saved to your lifetime wallet`,
+        'wallet'
       );
     }
   }
