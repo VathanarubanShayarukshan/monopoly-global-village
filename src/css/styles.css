@@ -257,7 +257,7 @@ html, body {
 #game-screen { height: 100vh; overflow: hidden; }
 .game-toolbar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0.5rem 1rem; background: rgba(0,0,0,0.5);
+  padding: 0.25rem 1rem; background: rgba(0,0,0,0.5);
   border-bottom: 1px solid var(--glass-border); z-index: 10;
 }
 .toolbar-right { display: flex; gap: 0.4rem; }
@@ -289,8 +289,8 @@ html, body {
 
 .game-layout {
   display: grid;
-  grid-template-columns: 170px 1fr 200px;
-  height: calc(100vh - 52px);
+  grid-template-columns: 158px 1fr 178px;
+  height: calc(100vh - 42px);
   gap: 0;
 }
 
@@ -324,7 +324,7 @@ html, body {
 /* Board */
 .board-area {
   display: flex; align-items: center; justify-content: center;
-  padding: 0.5rem; overflow: auto;
+  padding: 0.2rem; overflow: auto;
   background:
     radial-gradient(ellipse at 30% 30%, rgba(76,175,80,0.25) 0%, transparent 60%),
     radial-gradient(ellipse at 70% 70%, rgba(0,0,0,0.4) 0%, transparent 60%),
@@ -335,8 +335,8 @@ html, body {
   display: grid;
   grid-template-columns: repeat(11, 1fr);
   grid-template-rows: repeat(11, 1fr);
-  width: min(calc(100vh - 64px), calc(100vw - 388px));
-  height: min(calc(100vh - 64px), calc(100vw - 388px));
+  width: min(calc(100vh - 48px), calc(100vw - 352px));
+  height: min(calc(100vh - 48px), calc(100vw - 352px));
   background: #dcedc8;
   border: 4px solid #1b5e20;
   border-radius: 10px;
@@ -581,7 +581,7 @@ html, body {
   .sidebar { max-height: 150px; }
   .sidebar.left { order: 2; }
   .board-area { order: 1; min-height: 60vh; }
-  .monopoly-board { width: min(calc(100vh - 130px), 94vw); height: min(calc(100vh - 130px), 94vw); }
+  .monopoly-board { width: min(calc(100vh - 110px), 94vw); height: min(calc(100vh - 110px), 94vw); }
   .sidebar.right { order: 3; }
   .lobby-content { padding: 1rem; }
   .game-header h1 { font-size: 1.6rem; }
