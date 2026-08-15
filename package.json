@@ -11,7 +11,7 @@
   },
   "keywords": ["monopoly", "game", "p2p", "webrtc", "offline", "pwa"],
   "license": "MIT",
-  "engines": {
-    "node": ">=14"
+    "engines": {
+    "node": "20.x"
   }
 }
