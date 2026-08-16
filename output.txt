@@ -84,4 +84,33 @@ pr8 - HOSTED ON GITHUB PAGES - the game is now live on the internet:
       expected since Pages has no backend; locally the db.json database applies)
       README.md updated with the live link
 
+pr9 - BUG FIX (reported by the user after testing online with their tester):
+      "we ended the online game on the tester's turn, then I continued it from the
+      Old Games button, but the tester could not reconnect — even with the invite URL"
+      ROOT CAUSE: resuming a saved game only reloaded the local state. The online
+      room was DEAD: quit/end destroyed the PeerJS peer (mgv-host-ROOMID) and the
+      BroadcastChannel, and resume never re-created them — so the tester's invite
+      link pointed at a room that no longer existed on the signaling server
+      ("Room not found / timeout").
+      FIXED:
+      - new resumeGame(): detects online games (stored roomId, or guest players in
+        legacy saves), re-opens the room: re-inits PeerJS host peer + BroadcastChannel
+        on the SAME room id and shows the same invite URL, so the tester can reconnect
+      - createGame now stores roomId in the game state, so every future save knows
+        its room (legacy saves fall back to the mgv_room_id cookie / new room code)
+      - saved-games list shows "🔴 Online" badge for online games
+      - guests now see "Online · Offline" status when the host closes the room
+      - PWA cache bumped to mgv-v16
+      VERIFIED end-to-end in Chrome (two tabs, WebRTC over the real signaling server):
+      host creates room, tester joins, game started, host rolled, turn passed to
+      tester, host quit to lobby (room destroyed), host loaded the saved game ->
+      room re-opened with the SAME code; tester reopened the invite URL, logged in
+      and reconnected -> full game state restored with the tester's turn preserved.
+      NOTE: local dual-tab testing against db.json can race (full-snapshot saves:
+      last writer wins) — a tester's account can be overwritten by the host's next
+      save. Not present on GitHub Pages (no shared db there; each player's data is
+      in their own browser). Consider a server-side merge as a future improvement.
+      committed + pushed to GitHub AND deployed to GitHub Pages
+      https://vathanarubanshayarukshan.github.io/monopoly-global-village/
+
 status - 100% of the requested tasks complete - project is published

@@ -1839,6 +1839,8 @@ class MultiplayerManager {
     conn.on('close', () => {
       this.connections.delete(conn.peer);
       this._report('peers', this.connections.size);
+      // Guests: when the host leaves/destroys the room, tell the player visibly
+      if (!this.isHost && this.connections.size === 0) this._report('offline', 0);
     });
   }
 
@@ -2375,10 +2377,11 @@ class UIManager {
     if (!list) return;
     list.innerHTML = games.length ? '' : '<p class="empty">No saved games yet</p>';
     games.forEach(g => {
+      const online = !!(g.roomId || (g.players || []).some(p => !p.isHost && !p.isBot));
       const item = document.createElement('div');
       item.className = 'saved-game-item';
       item.innerHTML = `
-        <span>${g.players?.length || 0} players — ${new Date(g.savedAt || g.createdAt).toLocaleDateString()}</span>
+        <span>${online ? '🔴 Online · ' : ''}${g.players?.length || 0} players — ${new Date(g.savedAt || g.createdAt).toLocaleDateString()}</span>
         <button class="btn btn-sm" data-load="${g.id}">Load</button>
         <button class="btn btn-sm btn-danger" data-delete="${g.id}">✕</button>
       `;
@@ -3118,10 +3121,7 @@ class App {
       const deleteId = e.target.dataset.delete;
       if (loadId) {
         const game = await this.storage.loadGame(loadId);
-        if (game) {
-          this.engine.loadState(game);
-          this.ui.showScreen('game-screen');
-        }
+        if (game) await this.resumeGame(game);
       }
       if (deleteId) {
         await this.storage.deleteGame(deleteId);
@@ -3140,6 +3140,42 @@ class App {
       return true;
     }
     return false;
+  }
+
+  /** Resume a saved game. Online games are detected by their stored roomId (or by
+   *  guest players in legacy saves) and their room is RE-OPENED — the PeerJS peer
+   *  and BroadcastChannel are re-created on the SAME room id, so the invite link
+   *  keeps working and players can reconnect after the host continued the game.
+   *  (Fixes: "host resumed from Old games but the tester cannot connect via the
+   *  invite URL" — the room was dead because quit/end destroyed the peer.) */
+  async resumeGame(game) {
+    const wasOnline = !!(game.roomId ||
+      (game.players || []).some(p => !p.isHost && !p.isBot));
+    this.engine.loadState(game);
+    this.isMultiplayer = wasOnline;
+    this.isHost = true;
+    if (wasOnline) {
+      const roomId = game.roomId || CookieStore.get('mgv_room_id') || this.multiplayer.generateRoomId();
+      this.roomId = roomId;
+      try {
+        await this.multiplayer.initPeer(roomId, true);
+        this.multiplayer.initBroadcastChannel(roomId);
+        if (!game.roomId) {
+          game.roomId = roomId;
+          await this.storage.saveGame(game);
+        }
+        const url = this.multiplayer.getShareUrl(roomId);
+        try { history.replaceState(null, '', url); } catch (err) { console.warn('replaceState failed:', err); }
+        this.ui.showInviteModal(url);
+        this.ui.showToast('🔁 Room re-opened — share the invite link so players can reconnect!', 'success');
+        audio.play('click');
+      } catch (err) {
+        this.ui.showToast('Room could not be re-created (no internet?) — continuing solo for now.', 'error');
+        console.error(err);
+      }
+    }
+    this.gameScreenShown = true;
+    this.ui.showScreen('game-screen');
   }
 
   startLocalGame() {
@@ -3191,6 +3227,7 @@ class App {
     this.gameScreenShown = true;
 
     this.engine.createGame(names, this.myPlayerId);
+    if (this.engine.state) this.engine.state.roomId = this.roomId;
     await this.storage.saveRoom({ id: this.roomId, hostId: this.myPlayerId, createdAt: Date.now() });
     try {
       await this.multiplayer.initPeer(this.roomId, true);
