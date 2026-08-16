@@ -193,13 +193,100 @@ class CookieStore {
   }
 }
 
-/** IndexedDB for large game state (no 4KB cookie limit) */
+/** Game data lives in a real JSON file (db.json) served by the python server —
+ *  permanent, never lost when the browser cache is cleared. IndexedDB stays only
+ *  as a fallback for static hosting and as the audio-asset cache. */
 class GameDatabase {
   constructor() {
     this.db = null;
+    this.fileBackend = false;
+    this.fileData = null;
+    this._persistQueue = Promise.resolve();
+  }
+
+  static FILE_STORES = ['accounts', 'games', 'rooms'];
+
+  /** Probe the db.json API. Returns true when the file database is available. */
+  async _probeFileBackend() {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 2500);
+      const resp = await fetch('/api/state', { cache: 'no-store', signal: ctrl.signal });
+      clearTimeout(t);
+      if (!resp.ok) return false;
+      const data = await resp.json();
+      this.fileBackend = true;
+      this.fileData = {
+        accounts: Array.isArray(data.accounts) ? data.accounts : [],
+        games: Array.isArray(data.games) ? data.games : [],
+        rooms: Array.isArray(data.rooms) ? data.rooms : [],
+        banked: data.banked && typeof data.banked === 'object' ? data.banked : {},
+        incomeOffsets: data.incomeOffsets && typeof data.incomeOffsets === 'object' ? data.incomeOffsets : {}
+      };
+      return true;
+    } catch (e) {
+      this.fileBackend = false;
+      this.fileData = null;
+      return false;
+    }
+  }
+
+  _fileSnapshot() {
+    return {
+      version: 2,
+      accounts: this.fileData.accounts,
+      games: this.fileData.games,
+      rooms: this.fileData.rooms,
+      banked: this.fileData.banked,
+      incomeOffsets: this.fileData.incomeOffsets
+    };
+  }
+
+  /** Serialized write to db.json — every mutation is queued so saves never race */
+  _persist() {
+    this._persistQueue = this._persistQueue.then(async () => {
+      try {
+        await fetch('/api/state', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this._fileSnapshot())
+        });
+      } catch (e) {
+        console.warn('db.json save failed:', e);
+      }
+    });
+    return this._persistQueue;
+  }
+
+  _fileKeyOf(store, item) { return store === 'accounts' ? item.username : item.id; }
+
+  async _fileGet(store, key) {
+    const arr = this.fileData[store];
+    return arr.find(r => String(this._fileKeyOf(store, r)) === String(key)) || null;
+  }
+
+  async _filePut(store, data) {
+    const arr = this.fileData[store];
+    const i = arr.findIndex(r => String(this._fileKeyOf(store, r)) === String(this._fileKeyOf(store, data)));
+    if (i >= 0) arr[i] = data; else arr.push(data);
+    await this._persist();
+  }
+
+  async _fileDelete(store, key) {
+    const arr = this.fileData[store];
+    const i = arr.findIndex(r => String(this._fileKeyOf(store, r)) === String(key));
+    if (i >= 0) arr.splice(i, 1);
+    await this._persist();
   }
 
   async init() {
+    if (this.db) return this.db;
+    await this._probeFileBackend();
+    if (this.fileBackend) return null;
+    return this._ensureIdb();
+  }
+
+  async _ensureIdb() {
     if (this.db) return this.db;
     return new Promise((resolve, reject) => {
       const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -218,6 +305,8 @@ class GameDatabase {
 
   async get(store, key) {
     await this.init();
+    if (this.fileBackend && GameDatabase.FILE_STORES.includes(store)) return this._fileGet(store, key);
+    await this._ensureIdb();
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction(store, 'readonly');
       const req = tx.objectStore(store).get(key);
@@ -228,6 +317,8 @@ class GameDatabase {
 
   async put(store, data) {
     await this.init();
+    if (this.fileBackend && GameDatabase.FILE_STORES.includes(store)) return this._filePut(store, data);
+    await this._ensureIdb();
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction(store, 'readwrite');
       const req = tx.objectStore(store).put(data);
@@ -238,6 +329,8 @@ class GameDatabase {
 
   async getAll(store) {
     await this.init();
+    if (this.fileBackend && GameDatabase.FILE_STORES.includes(store)) return [...this.fileData[store]];
+    await this._ensureIdb();
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction(store, 'readonly');
       const req = tx.objectStore(store).getAll();
@@ -248,6 +341,8 @@ class GameDatabase {
 
   async delete(store, key) {
     await this.init();
+    if (this.fileBackend && GameDatabase.FILE_STORES.includes(store)) return this._fileDelete(store, key);
+    await this._ensureIdb();
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction(store, 'readwrite');
       const req = tx.objectStore(store).delete(key);
@@ -256,7 +351,20 @@ class GameDatabase {
     });
   }
 
+  /** Raw IndexedDB read — used only for the one-time migration into db.json */
+  async _rawGetAll(store) {
+    await this._ensureIdb();
+    if (!this.db.objectStoreNames.contains(store)) return [];
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction(store, 'readonly');
+      const req = tx.objectStore(store).getAll();
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
   async cacheAsset(url, blob) {
+    await this._ensureIdb();
     await this.put('assets', { url, blob, cachedAt: Date.now() });
   }
 
@@ -280,6 +388,7 @@ class StorageManager {
 
   async init() {
     await this.db.init();
+    if (this.db.fileBackend) await this._migrateFromIndexedDb();
     this.playerId = CookieStore.get('mgv_player_id');
     if (!this.playerId) {
       this.playerId = 'player_' + crypto.randomUUID().slice(0, 8);
@@ -289,6 +398,26 @@ class StorageManager {
     const username = CookieStore.get('mgv_user');
     if (username) this.account = (await this.getAccount(username)) || null;
     return this.playerId;
+  }
+
+  /** db.json mode: one-time move of any existing IndexedDB data into the file so
+   *  no wallet or saved game is ever lost. Returns how many items were migrated. */
+  async _migrateFromIndexedDb() {
+    const file = this.db.fileData;
+    if (file.accounts.length || file.games.length || file.rooms.length) return 0;
+    let moved = 0;
+    try {
+      const accounts = await this.db._rawGetAll('accounts');
+      const games = await this.db._rawGetAll('games');
+      const rooms = await this.db._rawGetAll('rooms');
+      if (accounts.length) { file.accounts.push(...accounts); moved += accounts.length; }
+      if (games.length) { file.games.push(...games); moved += games.length; }
+      if (rooms.length) { file.rooms.push(...rooms); moved += rooms.length; }
+      if (moved) await this.db._persist();
+    } catch (e) {
+      console.warn('IndexedDB migration skipped:', e);
+    }
+    return moved;
   }
 
   isLoggedIn() { return !!this.account; }
@@ -575,13 +704,35 @@ class StorageManager {
   }
 
   /** Each game can only be banked once (prevents repeat banking of the same
-   *  earnings when the page is reloaded or the tab closed more than once). */
+   *  earnings when the page is reloaded or the tab closed more than once).
+   *  Stored in db.json when the file database is active — permanent. */
   isBanked(gameId) {
+    if (this.db.fileBackend) return !!this.db.fileData.banked[gameId];
     return !!CookieStore.get('mgv_banked_' + gameId);
   }
 
   markBanked(gameId) {
+    if (this.db.fileBackend) {
+      this.db.fileData.banked[gameId] = 1;
+      this.db._persist();
+      return;
+    }
     CookieStore.set('mgv_banked_' + gameId, '1');
+  }
+
+  /** Live-income dedupe offset — permanent in db.json, cookie fallback otherwise */
+  getIncomeOffset(gameId) {
+    if (this.db.fileBackend) return Math.max(0, Math.floor(Number(this.db.fileData.incomeOffsets[gameId]) || 0));
+    return Math.max(0, Math.floor(Number(CookieStore.get('mgv_income_' + gameId) || 0)));
+  }
+
+  setIncomeOffset(gameId, total) {
+    if (this.db.fileBackend) {
+      this.db.fileData.incomeOffsets[gameId] = Math.max(0, Math.floor(Number(total) || 0));
+      this.db._persist();
+      return;
+    }
+    CookieStore.set('mgv_income_' + gameId, String(total));
   }
 
   /** Permanent lifetime wallet address (system-generated at account creation) */
@@ -2695,6 +2846,9 @@ class App {
 
   async init() {
     await this.storage.init();
+    if (this.storage.db.fileBackend) {
+      this.ui.showToast('💾 Saving to db.json — permanent file database', 'wallet');
+    }
     await audio.init();
     this.myPlayerId = this.storage.playerId;
 
@@ -3349,9 +3503,9 @@ class App {
     return null;
   }
 
-  /** How much of this game's income was already banked live (mgv_income_<gameId>) */
+  /** How much of this game's income was already banked live (db.json / cookie) */
   _incomeBanked(stateId) {
-    return Math.max(0, Math.floor(Number(CookieStore.get('mgv_income_' + stateId) || 0)));
+    return this.storage.getIncomeOffset(stateId);
   }
 
   /** PR4: bank the human player's income LIVE the moment it is earned (rent, GO,
@@ -3368,7 +3522,7 @@ class App {
     const delta = total - this._incomeBanked(state.id);
     if (delta <= 0) return;
     this.storage.addLifetime(delta);
-    CookieStore.set('mgv_income_' + state.id, String(total));
+    this.storage.setIncomeOffset(state.id, total);
     this.ui.showToast(
       `💎 +$${delta.toLocaleString()} income → lifetime wallet`,
       'wallet'

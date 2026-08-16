@@ -22,6 +22,13 @@ python server.py      # → open http://localhost:34567
 - 📴 Works offline as a PWA (service worker)
 - 💾 Export/Import save data as a single file
 
+> 💾 **Permanent JSON database** — all data (accounts, wallets, saved games, banked‑income
+> counters) is stored in a real file, `db.json`, next to `server.py`. Nothing depends on
+> the browser cache, so nothing is ever lost when you clear cookies / site data. The
+> server automatically migrates any existing browser‑stored data into `db.json` the
+> first time it runs. (If you open the game without the server — e.g. `file://` — it
+> falls back to browser storage so the game always works.)
+
 ---
 
 ## ▶️ How to run

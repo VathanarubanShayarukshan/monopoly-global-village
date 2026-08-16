@@ -57,4 +57,22 @@ pr6 - board made MUCH larger: side panels slimmed to 158/178px, toolbar and padd
       committed + pushed to GitHub: https://github.com/VathanarubanShayarukshan/monopoly-global-village
       (NOT deployed to Vercel as requested)
 
+pr7 - GAME DATA NO LONGER SAVED IN THE BROWSER CACHE - permanent JSON file database:
+      server.py now serves a small database API (GET/POST /api/state) backed by a real
+      db.json file next to server.py (atomic writes: temp file + rename)
+      ALL game data - accounts (usernames, password/PIN hashes, lifetime wallets,
+      addresses, balances), saved games, online rooms and the banked-income dedupe
+      counters - is read/written into db.json through the API; the browser cache
+      (IndexedDB/cookies) is only a fallback for file:// / static hosting
+      one-time automatic migration: existing IndexedDB data is copied into db.json
+      the first time the game opens with the server running, so nothing is lost
+      service worker never intercepts /api/ URLs (live database, never cached),
+      PWA cache bumped to mgv-v15
+      verified in Chrome: account created -> appears in db.json; server restarted +
+      all browser storage wiped -> login still works from db.json; migration test
+      passed (IndexedDB account moved into db.json); banked/income counters persist
+      README.md updated with a "Permanent JSON database" note
+      committed + pushed to GitHub (db.json included):
+      https://github.com/VathanarubanShayarukshan/monopoly-global-village
+
 status - 100% of the requested tasks complete - project is published

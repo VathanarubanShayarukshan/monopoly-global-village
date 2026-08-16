@@ -1,6 +1,6 @@
 /* Monopoly Global Village — offline cache service worker */
 /* NOTE: bump CACHE version whenever assets change, so users get the new files. */
-const CACHE = 'mgv-v14';
+const CACHE = 'mgv-v15';
 const ASSETS = [
   './',
   './index.html',
@@ -41,6 +41,8 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   if (!e.request.url.startsWith(self.location.origin)) return;
+  // db.json API must NEVER be served from the cache — it is the live database.
+  if (e.request.url.includes('/api/')) return;
   e.respondWith(
     caches.match(e.request).then((cached) => {
       const fetched = fetch(e.request)
