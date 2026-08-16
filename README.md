@@ -2,6 +2,10 @@
 
 A Pokémon‑themed Monopoly board game that runs **100% in the browser** — plain JavaScript + WebRTC, no backend server required. Fully offline‑first with limited online play.
 
+> 🌍 **Play it live on GitHub Pages:** https://vathanarubanshayarukshan.github.io/monopoly-global-village/
+
+> 💾 On the hosted site (static GitHub Pages) accounts are kept in your browser; run it locally with `python server.py` and all data is stored permanently in the repo's `db.json` file instead.
+
 ## 🚀 Quick start
 
 **Windows** — double‑click `start.bat` (or `start.sh` on Linux/macOS) — it starts the server and opens the game in your browser automatically.

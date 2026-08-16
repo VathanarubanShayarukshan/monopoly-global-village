@@ -75,4 +75,13 @@ pr7 - GAME DATA NO LONGER SAVED IN THE BROWSER CACHE - permanent JSON file datab
       committed + pushed to GitHub (db.json included):
       https://github.com/VathanarubanShayarukshan/monopoly-global-village
 
+pr8 - HOSTED ON GITHUB PAGES - the game is now live on the internet:
+      URL: https://vathanarubanshayarukshan.github.io/monopoly-global-village/
+      site = src/ published as the gh-pages branch (static, .nojekyll)
+      enabled via GitHub API (build succeeded, HTTP 200)
+      verified in Chrome on the live URL: game boots, account creation works,
+      reload + login persists (browser storage on the static host - this is
+      expected since Pages has no backend; locally the db.json database applies)
+      README.md updated with the live link
+
 status - 100% of the requested tasks complete - project is published
