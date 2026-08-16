@@ -1870,25 +1870,46 @@ class MultiplayerManager {
     }
   }
 
+  /** Guest → host join. Auto-retries for ~3 minutes when the host's room isn't
+   *  open yet (e.g. the host is still re-opening the saved game), so testers who
+   *  click the invite link early still connect as soon as the room is back. */
   async joinRoom(hostRoomId) {
-    let ok = false;
-    try {
-      await this.initPeer(hostRoomId, false);
-      ok = true;
-    } catch (e) {
-      throw new Error('Signaling server unreachable — check your internet connection.');
-    }
-    if (!ok) throw new Error('Could not initialise peer connection.');
-
     const hostPeerId = `mgv-host-${hostRoomId}`;
-    this._report('connecting', 'looking for host…');
+    const maxTries = 12;
+    for (let attempt = 1; attempt <= maxTries; attempt++) {
+      if (attempt > 1) this.destroy();
+      this._report('connecting', attempt === 1
+        ? 'looking for host…'
+        : `host not ready yet — retrying (${attempt}/${maxTries})…`);
+      try {
+        await this.initPeer(hostRoomId, false);
+        const conn = await this._connectToHost(hostPeerId);
+        return conn;
+      } catch (e) {
+        const retryable = e.type === 'peer-unavailable'
+          || e.type === 'unavailable-id'
+          || e.message === 'Connection timeout'
+          || e.message === 'network';
+        if (retryable && attempt < maxTries) {
+          await new Promise(r => setTimeout(r, 10000));
+          continue;
+        }
+        if (e.message === 'Connection timeout') {
+          throw new Error('Timed out waiting for the host.');
+        }
+        throw new Error('Room not found — the host is offline, or hasn’t re-opened this room yet. Retry when the host has opened the game.');
+      }
+    }
+    throw new Error('Could not connect to the room.');
+  }
 
+  _connectToHost(hostPeerId) {
     return new Promise((resolve, reject) => {
       const conn = this.peer.connect(hostPeerId, { reliable: true });
       const timeout = setTimeout(() => {
         this._report('error', 'Timed out waiting for the host.');
         reject(new Error('Connection timeout'));
-      }, 20000);
+      }, 15000);
 
       conn.on('open', () => {
         clearTimeout(timeout);
@@ -2357,14 +2378,20 @@ class UIManager {
   setConnStatus(status, detail) {
     const el = document.getElementById('conn-status');
     if (!el) return;
-    const map = {
-      connected: ['Online · Connected', 'ok'],
-      connecting: ['Online · Connecting…', 'busy'],
-      peers: [`Online · ${detail || 0} peer(s)`, 'ok'],
-      offline: ['Online · Offline', 'bad'],
-      error: ['Online · Error', 'bad']
-    };
-    const [text, cls] = map[status] || ['', ''];
+    let text = '';
+    let cls = '';
+    if (status === 'connecting') {
+      text = detail ? `Online · ${detail}` : 'Online · Connecting…';
+      cls = 'busy';
+    } else {
+      const map = {
+        connected: ['Online · Connected', 'ok'],
+        peers: [`Online · ${detail || 0} peer(s)`, 'ok'],
+        offline: ['Online · Offline', 'bad'],
+        error: ['Online · Error', 'bad']
+      };
+      [text, cls] = map[status] || ['', ''];
+    }
     if (!text) { el.hidden = true; return; }
     el.hidden = false;
     el.textContent = text;
@@ -3155,22 +3182,40 @@ class App {
     this.isMultiplayer = wasOnline;
     this.isHost = true;
     if (wasOnline) {
-      const roomId = game.roomId || CookieStore.get('mgv_room_id') || this.multiplayer.generateRoomId();
+      let roomId = null;
+      if (game.roomId) {
+        roomId = game.roomId;
+      } else {
+        // Legacy save without a stored room id: reuse the last room only when it
+        // really belongs to this host; otherwise issue a FRESH room code so the
+        // old dead link can never be mistaken for a working one.
+        const cookie = CookieStore.get('mgv_room_id');
+        if (cookie) {
+          const rec = await this.storage.loadRoom(cookie);
+          if (rec && String(rec.hostId) === String(this.myPlayerId)) roomId = cookie;
+        }
+        if (!roomId) {
+          roomId = this.multiplayer.generateRoomId();
+          this.ui.showToast(`🔑 Original room code unknown — NEW code: ${roomId}. Send the new invite link to players!`, 'info');
+        }
+      }
       this.roomId = roomId;
       try {
         await this.multiplayer.initPeer(roomId, true);
         this.multiplayer.initBroadcastChannel(roomId);
-        if (!game.roomId) {
+        if (game.roomId !== roomId) {
           game.roomId = roomId;
           await this.storage.saveGame(game);
         }
+        // refresh the room record + mgv_room_id cookie so later resumes match
+        await this.storage.saveRoom({ id: roomId, hostId: this.myPlayerId, createdAt: Date.now() });
         const url = this.multiplayer.getShareUrl(roomId);
         try { history.replaceState(null, '', url); } catch (err) { console.warn('replaceState failed:', err); }
         this.ui.showInviteModal(url);
         this.ui.showToast('🔁 Room re-opened — share the invite link so players can reconnect!', 'success');
         audio.play('click');
       } catch (err) {
-        this.ui.showToast('Room could not be re-created (no internet?) — continuing solo for now.', 'error');
+        this.ui.showToast('Room could not be re-created — check your internet and try Load again.', 'error');
         console.error(err);
       }
     }
@@ -3268,7 +3313,7 @@ class App {
     this.isHost = false;
     this.gameScreenShown = false;
 
-    this.ui.showToast('Connecting to room…', 'info');
+    this.ui.showToast('Connecting to room… (auto-retries for up to 3 minutes if the host isn’t ready yet)', 'info');
     try {
       await this.multiplayer.joinRoom(roomId);
       this.multiplayer.initBroadcastChannel(roomId);

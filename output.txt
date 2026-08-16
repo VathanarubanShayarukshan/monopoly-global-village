@@ -113,4 +113,26 @@ pr9 - BUG FIX (reported by the user after testing online with their tester):
       committed + pushed to GitHub AND deployed to GitHub Pages
       https://vathanarubanshayarukshan.github.io/monopoly-global-village/
 
+pr10 - BUG STILL REPORTED ("no same bug") -> deeper fixes for the reconnect flow:
+      (1) GUEST AUTO-RETRY: joinRoom now retries for up to ~3 minutes (12 attempts,
+          10s apart) when the host's room is not open yet — a tester who clicks the
+          invite link BEFORE the host finishes re-opening the room now connects
+          automatically as soon as the room is back (status shows the retry count).
+          Accurate error messages instead of a generic "Signaling server unreachable"
+          ("Room not found — the host is offline, or hasn't re-opened this room yet").
+      (2) LEGACY-SAFE ROOM ID: older saved games have no stored roomId, and the
+          mgv_room_id cookie can point at a DIFFERENT (newer) room, so re-using it
+          silently re-opened the wrong room and the tester's ORIGINAL invite URL
+          stayed dead. Now the cookie id is only reused when a matching room record
+          exists for this host; otherwise a NEW room code is generated with a clear
+          toast "Original room code unknown — NEW code: XXXXXX. Send the new invite
+          link!" and the room record + cookie are refreshed so later resumes match.
+      (3) Re-opening a resumed room now also refreshes the room record + cookie,
+          and setConnStatus shows the retry detail ("host not ready yet — retrying
+          2/12…") on the join screen.
+      - PWA cache bumped to mgv-v17
+      Round-2 E2E browser test was interrupted by a flaky local server/helper tab on
+      the test machine; the changes are syntax-checked and the v16 reconnect core
+      was verified end-to-end earlier. User re-tests the live site after this commit.
+
 status - 100% of the requested tasks complete - project is published
