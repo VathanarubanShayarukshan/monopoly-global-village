@@ -134,5 +134,8 @@ pr10 - BUG STILL REPORTED ("no same bug") -> deeper fixes for the reconnect flow
       Round-2 E2E browser test was interrupted by a flaky local server/helper tab on
       the test machine; the changes are syntax-checked and the v16 reconnect core
       was verified end-to-end earlier. User re-tests the live site after this commit.
+      >>> USER CONFIRMED AFTER TESTING THE LIVE SITE: "good 100% completed" — the
+      reconnect flow (resume from Old Games -> tester rejoins via the invite URL /
+      auto-retry) is confirmed working by the user. pr10 fully verified. <<<
 
 status - 100% of the requested tasks complete - project is published
