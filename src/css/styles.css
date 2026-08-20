@@ -213,6 +213,7 @@ html, body {
   font-family: var(--font); font-weight: 700; font-size: 0.9rem;
   cursor: pointer; transition: all 0.2s; color: var(--text);
   display: inline-flex; align-items: center; gap: 0.4rem; justify-content: center;
+  background: rgba(255,255,255,0.12);
 }
 .btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
 .btn:active { transform: translateY(0); }
@@ -558,6 +559,9 @@ html, body {
 }
 .color-dot { width: 12px; height: 12px; border-radius: 3px; }
 .prop-actions { display: flex; flex-wrap: wrap; gap: 0.3rem; width: 100%; }
+.prop-actions .btn { background: #fff; color: #000; }
+.prop-actions .btn:hover { filter: brightness(0.92); }
+.prop-actions .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 /* Card overlay */
 .card-overlay {

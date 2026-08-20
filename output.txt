@@ -138,4 +138,29 @@ pr10 - BUG STILL REPORTED ("no same bug") -> deeper fixes for the reconnect flow
       reconnect flow (resume from Old Games -> tester rejoins via the invite URL /
       auto-retry) is confirmed working by the user. pr10 fully verified. <<<
 
+pr11 - build/mortgage buttons BLACK TEXT + offline cache -> database sync:
+      (1) Build/Mortgage (property manager) buttons were invisible: the base .btn
+          style had NO background, so browsers painted the default light "button
+          face" with the near-white theme text (#f1faee) on top — unreadable.
+          Now .prop-actions .btn is a WHITE button with BLACK text (user request),
+          and plain .btn got a dark translucent background so no button anywhere
+          (e.g. Load / ✕ in saved games) is ever invisible again.
+      (2) TEMP MEMORY MIRROR: every database save now ALSO writes the full data
+          snapshot into the browser cache (CookieStore 'mgv_db_mirror' — survives
+          as a cookie + localStorage mirror). In IndexedDB mode (static hosting /
+          offline) the mirror is refreshed after every put/delete too.
+      (3) CONNECT -> DATABASE UPDATE: on startup (file db available) and on the
+          browser 'online' event, syncFromCache() merges the cached mirror into
+          db.json — dedupe by record key, later record wins, existing server data
+          is authoritative; the mirror is only cleared after a successful write.
+          A toast shows "Synced N cached record(s) into the database". This also
+          heals the old multi-tab clobbering (a tab that lost its account in a
+          full-snapshot save re-merges it from its own mirror on next connect).
+      - PWA cache bumped to mgv-v18
+      VERIFIED in Chrome against the live python server: sw v18 active; account
+      created -> mirror present in localStorage holding the FULL database snapshot
+      (all accounts + games); Build ($50) / Mortgage ($30) buttons computed style
+      = background rgb(255,255,255), color rgb(0,0,0). Test artifacts removed from
+      the user's db.json afterwards (user's real account + games untouched).
+
 status - 100% of the requested tasks complete - project is published

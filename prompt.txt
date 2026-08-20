@@ -30,4 +30,9 @@ pr6 - more changes make board more larger and add a function small notifications
       for decotaion and easy  undestanding a property without reading the name and adda option to make own mark peases to his poins by player them self for hey not like out simple
       icons the thay can draw peases them self in the game like ms paint ok cimmit ths update in github but do not deploy in vercel 
 
-      
+pr 10 - some ises i have loing the game in a usrname and play annd earn $2500 in life walet but i have trying login in another browser then the game say the account is not found why 
+        and the manage property btn in the game ui not show lable in mortage or buld house btn and why i can't buld the house in my place and another new update it is when game walet 
+        is $0  then a confirmaion want shows in the center of the ui that is ask auto transvert paying money from life walet or risigne the game the auto pay option is 
+        when player want pay a rent or oother outgoing from game walet is the game walet is emty then auto pay option pay the outgoing from lifewalet automaticly and palyer not allow it 
+        then is the walet is 0 then palyer in out of the game and the life walet income is too easy it is a isse for my new real cash to game mony extarnge option then users can get vry 
+        high paying from game so sudjest a idea but do not impliment it is game only idea and commit in github for new updates but without the new ideas 

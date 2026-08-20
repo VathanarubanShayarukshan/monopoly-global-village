@@ -205,6 +205,7 @@ class GameDatabase {
   }
 
   static FILE_STORES = ['accounts', 'games', 'rooms'];
+  static MIRROR_KEY = 'mgv_db_mirror';
 
   /** Probe the db.json API. Returns true when the file database is available. */
   async _probeFileBackend() {
@@ -242,20 +243,95 @@ class GameDatabase {
     };
   }
 
-  /** Serialized write to db.json — every mutation is queued so saves never race */
+  /** Serialized write to db.json — every mutation is queued so saves never race.
+   *  Always mirrors the same snapshot into browser cache (temp memory), so data is
+   *  never lost even if the server/db fails — the cache merges back on next connect. */
   _persist() {
     this._persistQueue = this._persistQueue.then(async () => {
       try {
-        await fetch('/api/state', {
+        CookieStore.set(GameDatabase.MIRROR_KEY, this._fileSnapshot());
+      } catch (e) { /* cache full — db.json write below still proceeds */ }
+      if (!this.fileBackend) return true;
+      try {
+        const resp = await fetch('/api/state', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(this._fileSnapshot())
         });
+        return resp.ok;
       } catch (e) {
         console.warn('db.json save failed:', e);
+        return false;
       }
     });
     return this._persistQueue;
+  }
+
+  /** Keep the cache mirror fresh in IndexedDB mode (static/offline hosting):
+   *  after every mutation re-read the stores and mirror them into cache. */
+  _refreshMirrorFromIdb() {
+    Promise.all([
+      this._rawGetAll('accounts'),
+      this._rawGetAll('games'),
+      this._rawGetAll('rooms')
+    ]).then(([accounts, games, rooms]) => {
+      try {
+        CookieStore.set(GameDatabase.MIRROR_KEY, {
+          version: 2,
+          accounts, games, rooms,
+          banked: {}, incomeOffsets: {}
+        });
+      } catch (e) { /* cache full — skip */ }
+    }).catch(() => {});
+  }
+
+  /** Merge the cache mirror (temp memory) into the db.json state.
+   *  Dedupe by record key, the later record wins; server data is authoritative
+   *  for existing keys. Returns how many records were added, 0 when nothing changed. */
+  async syncFromCache() {
+    if (!this.fileBackend) return 0;
+    let mirror = null;
+    try { mirror = CookieStore.get(GameDatabase.MIRROR_KEY); } catch (e) { mirror = null; }
+    if (!mirror || typeof mirror !== 'object' || !mirror.version) return 0;
+    const later = (a, b, key) => {
+      const ta = Number(a?.[key] || 0);
+      const tb = Number(b?.[key] || 0);
+      return ta >= tb ? a : b;
+    };
+    let added = 0;
+    for (const store of ['accounts', 'games', 'rooms']) {
+      const theirs = Array.isArray(mirror[store]) ? mirror[store] : [];
+      const keyOf = store === 'accounts' ? 'username' : 'id';
+      for (const rec of theirs) {
+        const k = rec?.[keyOf];
+        if (!k) continue;
+        const mine = await this._fileGet(store, k);
+        if (!mine) { this.fileData[store].push(rec); added++; }
+        else {
+          const winner = later(mine, rec, store === 'games' ? 'savedAt' : 'createdAt');
+          if (winner !== mine) {
+            this.fileData[store][this.fileData[store].indexOf(mine)] = winner;
+            added++;
+          }
+        }
+      }
+    }
+    if (mirror.banked && typeof mirror.banked === 'object') {
+      for (const [u, amt] of Object.entries(mirror.banked)) {
+        if (!(u in this.fileData.banked)) { this.fileData.banked[u] = amt; added++; }
+      }
+    }
+    if (mirror.incomeOffsets && typeof mirror.incomeOffsets === 'object') {
+      for (const [u, off] of Object.entries(mirror.incomeOffsets)) {
+        if (!(u in this.fileData.incomeOffsets)) { this.fileData.incomeOffsets[u] = off; added++; }
+      }
+    }
+    if (added > 0) {
+      const ok = await this._persist();
+      if (!ok) return added; // db.json write failed — mirror stays for the next connect
+    }
+    try { CookieStore.remove(GameDatabase.MIRROR_KEY); } catch (e) {}
+    return added;
   }
 
   _fileKeyOf(store, item) { return store === 'accounts' ? item.username : item.id; }
@@ -319,12 +395,14 @@ class GameDatabase {
     await this.init();
     if (this.fileBackend && GameDatabase.FILE_STORES.includes(store)) return this._filePut(store, data);
     await this._ensureIdb();
-    return new Promise((resolve, reject) => {
+    const res = await new Promise((resolve, reject) => {
       const tx = this.db.transaction(store, 'readwrite');
       const req = tx.objectStore(store).put(data);
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error);
     });
+    if (!this.fileBackend && GameDatabase.FILE_STORES.includes(store)) this._refreshMirrorFromIdb();
+    return res;
   }
 
   async getAll(store) {
@@ -343,12 +421,14 @@ class GameDatabase {
     await this.init();
     if (this.fileBackend && GameDatabase.FILE_STORES.includes(store)) return this._fileDelete(store, key);
     await this._ensureIdb();
-    return new Promise((resolve, reject) => {
+    const res = await new Promise((resolve, reject) => {
       const tx = this.db.transaction(store, 'readwrite');
       const req = tx.objectStore(store).delete(key);
       req.onsuccess = () => resolve();
       req.onerror = () => reject(req.error);
     });
+    if (!this.fileBackend && GameDatabase.FILE_STORES.includes(store)) this._refreshMirrorFromIdb();
+    return res;
   }
 
   /** Raw IndexedDB read — used only for the one-time migration into db.json */
@@ -389,6 +469,10 @@ class StorageManager {
   async init() {
     await this.db.init();
     if (this.db.fileBackend) await this._migrateFromIndexedDb();
+    if (this.db.fileBackend) {
+      const n = await this.db.syncFromCache();
+      if (n > 0) console.log(`[db] merged ${n} cached record(s) from previous offline session`);
+    }
     this.playerId = CookieStore.get('mgv_player_id');
     if (!this.playerId) {
       this.playerId = 'player_' + crypto.randomUUID().slice(0, 8);
@@ -2879,6 +2963,12 @@ class App {
     if (this.storage.db.fileBackend) {
       this.ui.showToast('💾 Saving to db.json — permanent file database', 'wallet');
     }
+    // When the user comes back online, merge any offline cache data into the file database
+    window.addEventListener('online', async () => {
+      if (!this.storage.db.fileBackend) return;
+      const n = await this.storage.db.syncFromCache();
+      if (n > 0) this.ui.showToast(`🔄 Synced ${n} cached record(s) into the database`, 'success');
+    });
     await audio.init();
     this.myPlayerId = this.storage.playerId;
 
