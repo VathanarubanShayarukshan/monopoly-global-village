@@ -4,9 +4,6 @@ node_modules/
 __pycache__/
 *.pyc
 
-# live server database — never part of the hosted game
-db.json
-
 # editor
 .vscode/
 .idea/
