@@ -162,5 +162,19 @@ pr11 - build/mortgage buttons BLACK TEXT + offline cache -> database sync:
       (all accounts + games); Build ($50) / Mortgage ($30) buttons computed style
       = background rgb(255,255,255), color rgb(0,0,0). Test artifacts removed from
       the user's db.json afterwards (user's real account + games untouched).
+      DEPLOYMENT SPLIT (user question: "is github pages static or dynamic?"):
+      GitHub Pages serves STATIC files only — no python/db.json — so on the live
+      site each browser keeps its own data (that is why an account created in one
+      browser was "not found" in another). The real shared database needs this
+      repo's server.py. db.json handling finalised: first untracked+gitignored
+      (hosting must not ship a db), then RE-ADDED as an EMPTY template so the
+      repo is self-contained for the user's own server; personal data stays local.
+      USER DEPLOYED ON THEIR UBUNTU VPS (Python 3.12.3): cloned the repo, fixed a
+      port-34567 conflict (a node process held it — killed by PID), ran
+      `nohup python3 server.py > server.log 2>&1 &`, verified with
+      `curl http://localhost:34567/api/state` -> {"version":2,...} OK. Public URL
+      via Cloudflare quick tunnel: `nohup cloudflared tunnel --url
+      http://localhost:34567 > cloudflared.log 2>&1 &` (random trycloudflare.com
+      URL from the log; no firewall change needed).
 
 status - 100% of the requested tasks complete - project is published

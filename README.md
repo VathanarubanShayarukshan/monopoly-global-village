@@ -62,10 +62,31 @@ python server.py
 
 | Command          | What it does                             |
 | ---------------- | ---------------------------------------- |
-| `node build.js`  | Rebuild `js/game.js` from the modules    |
-| `node server.js` | Start the local web server (port 34567)  |
-| `npm run build`  | Same as `node build.js`                  |
-| `npm start`      | Same as `node server.js`                 |
+| `python server.py` | Start the game server + JSON database (port 34567) |
+| `start.bat` / `./start.sh` | Launcher scripts (server + browser)      |
+
+### Run on your own server / VPS (shared database for all players)
+
+```bash
+git clone https://github.com/VathanarubanShayarukshan/monopoly-global-village.git
+cd monopoly-global-village
+nohup python3 server.py > server.log 2>&1 &   # background
+curl http://localhost:34567/api/state         # verify -> {"version":2,...}
+```
+
+Open port `34567` in your firewall/security group, then players open
+`http://<your-server-ip>:34567`. All accounts, games and wallets are saved
+permanently in `db.json` on the server — shared by every player.
+
+Public URL without opening ports — Cloudflare quick tunnel:
+
+```bash
+nohup cloudflared tunnel --url http://localhost:34567 > cloudflared.log 2>&1 &
+grep -o 'https://[a-z0-9-]*\.trycloudflare\.com' cloudflared.log | head -1
+```
+
+> ℹ️ The GitHub Pages deployment is **static** (no database): there each browser
+> keeps its own data. For a real shared database run `server.py` as shown above.
 
 ### Two wallets explained
 
