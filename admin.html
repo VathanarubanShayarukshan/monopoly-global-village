@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — Monopoly Global Village</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0f0f1a; --card:rgba(255,255,255,0.06); --glass:rgba(255,255,255,0.12); --text:#f1faee; --muted:#a0a0b0; --gold:#ffd700; --accent:#457b9d; --primary:#e63946; --success:#2a9d8f; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1rem}
+    .login-box{max-width:360px;margin:8rem auto;background:var(--card);border:1px solid var(--glass);border-radius:12px;padding:2rem}
+    .login-box h2{text-align:center;margin-bottom:1rem}
+    .login-box input,.login-box button{width:100%;padding:.7rem;border:none;border-radius:8px;font-family:inherit;font-size:1rem;margin-top:.5rem}
+    .login-box input{background:rgba(255,255,255,0.08);color:var(--text);border:1px solid var(--glass)}
+    .login-box button{background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+    .login-box button:hover{filter:brightness(1.1)}
+    .login-box .err{color:var(--primary);margin-top:.5rem;font-size:.85rem;display:none}
+    #panel{display:none}
+    .topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:2rem}
+    .topbar h1{font-size:1.4rem}
+    .topbar .stats{display:flex;gap:1rem}
+    .topbar .stat{background:var(--card);border:1px solid var(--glass);border-radius:8px;padding:.5rem 1rem;text-align:center}
+    .topbar .stat b{display:block;font-size:1.3rem;color:var(--gold)}
+    .topbar .stat small{color:var(--muted);font-size:.75rem}
+    .topbar .actions{display:flex;gap:.5rem;flex-wrap:wrap}
+    .btn{padding:.5rem 1rem;border:none;border-radius:8px;font-family:inherit;font-weight:700;font-size:.85rem;cursor:pointer;color:var(--text)}
+    .btn-red{background:var(--primary)}
+    .btn-green{background:var(--success)}
+    .btn-blue{background:var(--accent)}
+    .btn:hover{filter:brightness(1.1)}
+    section{margin-bottom:2rem}
+    section h2{font-size:1.1rem;margin-bottom:.7rem;display:flex;align-items:center;gap:.5rem}
+    section h2 span{color:var(--gold)}
+    table{width:100%;border-collapse:collapse;background:var(--card);border-radius:8px;overflow:hidden}
+    th,td{padding:.6rem .8rem;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);font-size:.85rem}
+    th{background:rgba(255,255,255,0.04);color:var(--muted);font-weight:700;position:sticky;top:0}
+    tr:hover{background:rgba(255,255,255,0.03)}
+    .tag{padding:.15rem .5rem;border-radius:4px;font-size:.75rem;font-weight:700}
+    .tag-active{background:rgba(42,157,143,0.25);color:#7fe0d0}
+    .tag-ended{background:rgba(230,57,70,0.25);color:#ff9b9b}
+    .actions-cell{display:flex;gap:.3rem}
+    .actions-cell button{padding:.25rem .5rem;font-size:.75rem;border:none;border-radius:4px;cursor:pointer;font-weight:700;font-family:inherit}
+    .del-btn{background:var(--primary);color:#fff}
+    .del-btn:hover{filter:brightness(1.2)}
+    .empty{text-align:center;color:var(--muted);padding:2rem;font-style:italic}
+    @media(max-width:600px){.topbar{flex-direction:column;align-items:stretch}table{font-size:.75rem}}
+  </style>
+</head>
+<body>
+  <!-- LOGIN -->
+  <div class="login-box" id="login-box">
+    <h2>🔒 Admin Panel</h2>
+    <input id="pin-input" type="password" placeholder="Enter admin PIN" maxlength="32">
+    <button id="login-btn">Login</button>
+    <div class="err" id="login-err">Wrong PIN</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="panel">
+    <div class="topbar">
+      <h1>🎮 Admin Panel</h1>
+      <div class="stats">
+        <div class="stat"><b id="s-accounts">0</b><small>Accounts</small></div>
+        <div class="stat"><b id="s-games">0</b><small>Games</small></div>
+        <div class="stat"><b id="s-rooms">0</b><small>Rooms</small></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-green" onclick="loadData()">🔄 Refresh</button>
+        <button class="btn btn-blue" onclick="exportDb()">📥 Export DB</button>
+        <button class="btn btn-red" onclick="clearDb()">🗑️ Clear All</button>
+      </div>
+    </div>
+
+    <!-- ACCOUNTS -->
+    <section>
+      <h2><span>👤</span> Accounts</h2>
+      <div id="accounts-table"></div>
+    </section>
+
+    <!-- GAMES -->
+    <section>
+      <h2><span>🎯</span> Games</h2>
+      <div id="games-table"></div>
+    </section>
+
+    <!-- BANKED -->
+    <section>
+      <h2><span>🏦</span> Banked Data</h2>
+      <div id="banked-table"></div>
+    </section>
+  </div>
+
+<script>
+let PIN = '';
+
+document.getElementById('login-btn').onclick = login;
+document.getElementById('pin-input').onkeydown = e => { if (e.key === 'Enter') login(); };
+
+function login() {
+  PIN = document.getElementById('pin-input').value.trim();
+  if (!PIN) return;
+  loadData();
+}
+
+async function loadData() {
+  const errEl = document.getElementById('login-err');
+  try {
+    const r = await fetch('/api/admin?pin=' + encodeURIComponent(PIN));
+    if (!r.ok) { errEl.style.display = 'block'; return; }
+    const data = await r.json();
+    errEl.style.display = 'none';
+    document.getElementById('login-box').style.display = 'none';
+    document.getElementById('panel').style.display = 'block';
+    document.getElementById('s-accounts').textContent = data.stats.accounts;
+    document.getElementById('s-games').textContent = data.stats.games;
+    document.getElementById('s-rooms').textContent = data.stats.rooms;
+    renderAccounts(data.accounts);
+    renderGames(data.games);
+    renderBanked(data.banked, data.incomeOffsets);
+  } catch (e) {
+    errEl.textContent = 'Connection error';
+    errEl.style.display = 'block';
+  }
+}
+
+function renderAccounts(list) {
+  if (!list.length) { document.getElementById('accounts-table').innerHTML = '<div class="empty">No accounts</div>'; return; }
+  let html = '<table><tr><th>Username</th><th>Display</th><th>Lifetime Addr</th><th>Balance</th><th>Created</th><th>Actions</th></tr>';
+  list.forEach(a => {
+    const created = a.createdAt ? new Date(a.createdAt).toLocaleDateString() : '—';
+    html += `<tr>
+      <td>${esc(a.username)}</td>
+      <td>${esc(a.displayName)}</td>
+      <td><code>${esc(a.lifetimeAddr)}</code></td>
+      <td>$${(a.balance||0).toLocaleString()}</td>
+      <td>${created}</td>
+      <td class="actions-cell"><button class="del-btn" onclick="delAccount('${esc(a.username)}')">Delete</button></td>
+    </tr>`;
+  });
+  html += '</table>';
+  document.getElementById('accounts-table').innerHTML = html;
+}
+
+function renderGames(list) {
+  if (!list.length) { document.getElementById('games-table').innerHTML = '<div class="empty">No games</div>'; return; }
+  let html = '<table><tr><th>ID</th><th>Phase</th><th>Host</th><th>Players</th><th>Created</th><th>Saved</th><th>Actions</th></tr>';
+  list.forEach(g => {
+    const created = g.createdAt ? new Date(g.createdAt).toLocaleDateString() : '—';
+    const saved = g.savedAt ? new Date(g.savedAt).toLocaleString() : '—';
+    const phaseTag = g.phase === 'playing' ? '<span class="tag tag-active">Playing</span>' :
+                     g.phase === 'ended' ? '<span class="tag tag-ended">Ended</span>' : `<span class="tag">${esc(g.phase||'?')}</span>`;
+    const pCount = Array.isArray(g.players) ? g.players.length : '?';
+    html += `<tr>
+      <td><code>${esc(g.id)}</code></td>
+      <td>${phaseTag}</td>
+      <td><code>${esc(g.hostId||'?')}</code></td>
+      <td>${pCount}</td>
+      <td>${created}</td>
+      <td>${saved}</td>
+      <td class="actions-cell"><button class="del-btn" onclick="delGame('${esc(g.id)}')">Delete</button></td>
+    </tr>`;
+  });
+  html += '</table>';
+  document.getElementById('games-table').innerHTML = html;
+}
+
+function renderBanked(banked, offsets) {
+  const keys = Object.keys(banked || {});
+  const offKeys = Object.keys(offsets || {});
+  if (!keys.length && !offKeys.length) { document.getElementById('banked-table').innerHTML = '<div class="empty">No banked data</div>'; return; }
+  let html = '<table><tr><th>Game ID / Username</th><th>Value</th></tr>';
+  keys.forEach(k => { html += `<tr><td>${esc(k)}</td><td>$${(banked[k]||0).toLocaleString()}</td></tr>`; });
+  offKeys.forEach(k => { html += `<tr><td>${esc(k)}</td><td>$${(offsets[k]||0).toLocaleString()}</td></tr>`; });
+  html += '</table>';
+  document.getElementById('banked-table').innerHTML = html;
+}
+
+async function delAccount(username) {
+  if (!confirm('Delete account "' + username + '"?')) return;
+  await fetch('/api/admin/delete-account?pin=' + encodeURIComponent(PIN) + '&username=' + encodeURIComponent(username), { method: 'POST' });
+  loadData();
+}
+
+async function delGame(id) {
+  if (!confirm('Delete game "' + id + '"?')) return;
+  await fetch('/api/admin/delete-game?pin=' + encodeURIComponent(PIN) + '&id=' + encodeURIComponent(id), { method: 'POST' });
+  loadData();
+}
+
+async function clearDb() {
+  if (!confirm('⚠️ DELETE ALL accounts and games? This cannot be undone.')) return;
+  if (!confirm('Are you absolutely sure? Type YES in your mind and click OK.')) return;
+  await fetch('/api/admin/clear-db?pin=' + encodeURIComponent(PIN), { method: 'POST' });
+  loadData();
+}
+
+async function exportDb() {
+  const r = await fetch('/api/admin?pin=' + encodeURIComponent(PIN));
+  const data = await r.json();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'monopoly-db-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+</script>
+</body>
+</html>
