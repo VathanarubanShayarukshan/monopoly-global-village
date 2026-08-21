@@ -8,6 +8,9 @@ GET  /api/admin  -> admin panel: all data (requires ?pin=)
 POST /api/admin/delete-account  -> delete an account (requires ?pin=&username=)
 POST /api/admin/delete-game     -> delete a game (requires ?pin=&id=)
 POST /api/admin/clear-db        -> clear the database (requires ?pin=)
+POST /api/admin/edit-account    -> edit account data (requires ?pin=, body: {username, balance, displayName})
+POST /api/admin/add-funds       -> add funds to lifetime wallet (requires ?pin=&username=&amount_lkr=)
+Exchange rate: 10 LKR = 100 Mono cash
 Everything else  -> static files from ./src with no-cache headers
 """
 import http.server
@@ -168,6 +171,73 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             }
             save_db(db)
             self._send_json({'ok': True, 'message': 'database cleared'})
+            return
+
+        if path == '/api/admin/edit-account':
+            if not _admin_ok(self):
+                self._send_json({'error': 'wrong pin'}, 403)
+                return
+            try:
+                length = int(self.headers.get('Content-Length') or 0)
+                raw = self.rfile.read(length) if length else b'{}'
+                body = json.loads(raw.decode('utf-8'))
+            except Exception as e:
+                self._send_json({'ok': False, 'error': 'bad json: %s' % e}, 400)
+                return
+            username = (body.get('username') or '').strip()
+            if not username:
+                self._send_json({'ok': False, 'error': 'missing username'}, 400)
+                return
+            db = load_db()
+            acct = next((a for a in db['accounts'] if a.get('username') == username), None)
+            if not acct:
+                self._send_json({'ok': False, 'error': 'account not found'}, 404)
+                return
+            if 'balance' in body:
+                acct['balance'] = max(0, int(body['balance']))
+            if 'displayName' in body:
+                acct['displayName'] = body['displayName'].strip() or acct['displayName']
+            if 'lifetimeAddr' in body:
+                acct['lifetimeAddr'] = body['lifetimeAddr'].strip() or acct['lifetimeAddr']
+            save_db(db)
+            self._send_json({'ok': True, 'account': acct})
+            return
+
+        if path == '/api/admin/add-funds':
+            if not _admin_ok(self):
+                self._send_json({'error': 'wrong pin'}, 403)
+                return
+            username = (qs.get('username', [''])[0]).strip()
+            try:
+                amount_lkr = float(qs.get('amount_lkr', ['0'])[0])
+            except (ValueError, IndexError):
+                amount_lkr = 0
+            if not username:
+                self._send_json({'ok': False, 'error': 'missing username'}, 400)
+                return
+            if amount_lkr <= 0:
+                self._send_json({'ok': False, 'error': 'amount must be > 0 LKR'}, 400)
+                return
+            EXCHANGE_RATE = 10   # 10 LKR = 100 Mono
+            mono_cash = int(amount_lkr / EXCHANGE_RATE * 100)
+            if mono_cash <= 0:
+                self._send_json({'ok': False, 'error': 'amount too small — minimum 10 LKR'}, 400)
+                return
+            db = load_db()
+            acct = next((a for a in db['accounts'] if a.get('username') == username), None)
+            if not acct:
+                self._send_json({'ok': False, 'error': 'account not found'}, 404)
+                return
+            acct['balance'] = acct.get('balance', 0) + mono_cash
+            save_db(db)
+            self._send_json({
+                'ok': True,
+                'username': username,
+                'lkr_added': amount_lkr,
+                'mono_added': mono_cash,
+                'new_balance': acct['balance'],
+                'rate': f'{EXCHANGE_RATE} LKR = 100 Mono'
+            })
             return
 
         self._send_json({'ok': False, 'error': 'not found'}, 404)
